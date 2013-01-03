@@ -11,7 +11,7 @@ public interface Meeting {
     /**
      * Returns the id of the meeting.
      *
-     * @return the id of the
+     * @return the id of the meeting.
      */
     int getId();
 

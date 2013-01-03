@@ -33,7 +33,7 @@ public interface Contact {
     /**
      * Add notes about the contact.
      *
-     * @param note the notes to be added
+     * @param note the notes to be added.
      */
     void addNotes(String note);
 }
