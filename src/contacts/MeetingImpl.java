@@ -9,6 +9,16 @@ import java.util.Set;
  * Time: 16:46
  */
 public class MeetingImpl implements Meeting {
+    private final int id;
+    private final Calendar date;
+    private final Set<Contact> contacts;
+
+    public MeetingImpl(int id, Calendar date, Set<Contact> contacts) {
+        this.id = id;
+        this.date = date;
+        this.contacts = contacts;
+    }
+
     @Override
     public int getId() {
         return 0; // Dummy implementation

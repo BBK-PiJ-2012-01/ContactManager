@@ -8,24 +8,16 @@ import java.util.Set;
  * Date: 03/01/2013
  * Time: 16:46
  */
-public class PastMeetingImpl implements PastMeeting {
+public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
+    private final String notes;
+
+    public PastMeetingImpl(int id, Calendar date, Set<Contact> contacts, String notes) {
+        super(id, date, contacts);
+        this.notes = notes.trim();
+    }
+
     @Override
     public String getNotes() {
-        return null; // Dummy implementation
-    }
-
-    @Override
-    public int getId() {
-        return 0; // Dummy implementation
-    }
-
-    @Override
-    public Calendar getDate() {
-        return null; // Dummy implementation
-    }
-
-    @Override
-    public Set<Contact> getContacts() {
         return null; // Dummy implementation
     }
 }
