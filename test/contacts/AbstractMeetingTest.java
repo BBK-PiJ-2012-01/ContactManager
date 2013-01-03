@@ -23,7 +23,7 @@ public class AbstractMeetingTest {
     @Before
     public void setUp() throws Exception {
         date = Calendar.getInstance();
-        date.set(2014, 12, 23);
+        date.set(2014, Calendar.DECEMBER, 23);
 
         contacts = new HashSet<Contact>();
         contacts.add(new ContactImpl(1, "Alice"));
