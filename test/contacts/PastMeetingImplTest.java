@@ -24,6 +24,7 @@ public class PastMeetingImplTest {
 
     @Test
     public void testGetNotes() throws Exception {
-        assertEquals(notes, );
+        assertEquals(notes, m.getNotes());
     }
+
 }
