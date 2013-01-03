@@ -8,12 +8,12 @@ import java.util.Set;
  * Date: 03/01/2013
  * Time: 16:46
  */
-public class MeetingImpl implements Meeting {
+abstract public class AbstractMeeting implements Meeting {
     private final int id;
     private final Calendar date;
     private final Set<Contact> contacts;
 
-    public MeetingImpl(int id, Calendar date, Set<Contact> contacts) {
+    public AbstractMeeting(int id, Calendar date, Set<Contact> contacts) {
         this.id = id;
         this.date = date;
         this.contacts = contacts;

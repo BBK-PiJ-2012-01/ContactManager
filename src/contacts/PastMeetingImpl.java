@@ -8,7 +8,7 @@ import java.util.Set;
  * Date: 03/01/2013
  * Time: 16:46
  */
-public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
+public class PastMeetingImpl extends AbstractMeeting implements PastMeeting {
     private final String notes;
 
     public PastMeetingImpl(int id, Calendar date, Set<Contact> contacts, String notes) {

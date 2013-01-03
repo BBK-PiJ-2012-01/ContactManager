@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +14,7 @@ import java.util.Set;
  * Date: 03/01/2013
  * Time: 16:59
  */
-public class MeetingImplTest {
+public class AbstractMeetingTest {
     private Meeting m;
     private int id = 3;
     private Calendar date;
@@ -31,7 +30,7 @@ public class MeetingImplTest {
         contacts.add(new ContactImpl(2, "Bob"));
         contacts.add(new ContactImpl(3, "Charlie"));
 
-        m = new MeetingImpl(id, date, contacts);
+        m = new AbstractMeeting(id, date, contacts) {};
     }
 
     @Test
