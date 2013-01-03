@@ -6,6 +6,14 @@ package contacts;
  * Time: 16:45
  */
 public class ContactImpl implements Contact {
+    private final int id;
+    private final String name;
+
+    public ContactImpl(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     @Override
     public int getId() {
         return 0; // Dummy implementation
