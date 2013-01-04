@@ -64,6 +64,13 @@ public class ContactManagerImplTest {
         date.set(2014, Calendar.DECEMBER, 23);
     }
 
+    /**
+     * By setting the date to today, it is both in the future and in the past.
+     */
+    private void setDateToNow() {
+        date = Calendar.getInstance();
+    }
+
     private static <T> Set<T> setOf(T... contents) {
         return new HashSet<T>(Arrays.asList(contents));
     }
@@ -90,6 +97,17 @@ public class ContactManagerImplTest {
 
             previous_meeting = next_meeting;
         }
+    }
+
+    private void checkMeeting(Meeting meeting) throws Exception {
+        assertNotNull(meeting);
+
+        assertEquals(contacts, meeting.getContacts());
+        assertEquals(date, meeting.getDate());
+        if (meeting_id != -1)
+            assertEquals(meeting_id, meeting.getId());
+        else
+            throw new Exception("Shouldn't have been given meeting_id of -1 ...");
     }
 
     @Test
@@ -154,6 +172,7 @@ public class ContactManagerImplTest {
 
     @Test
     public void testGetPastMeeting() throws Exception {
+        setDateToNow();
         meeting_id = manager.addFutureMeeting(contacts, date);
         manager.addMeetingNotes(meeting_id, note);
         PastMeeting meeting = manager.getPastMeeting(meeting_id);
@@ -168,7 +187,7 @@ public class ContactManagerImplTest {
             return;
         }
 
-        throw new Exception("Adding a past meeting added a future meeting!!!");
+        throw new Exception("Was able to get a past meeting with getFutureMeeting");
     }
 
     @Test
@@ -191,23 +210,12 @@ public class ContactManagerImplTest {
             return;
         }
 
-        throw new Exception("Adding a future meeting added a past meeting!!!");
+        throw new Exception("Was able to get a future meeting with getPastMeeting");
     }
 
     @Test
     public void testGetNonexistentFutureMeeting() throws Exception {
         assertNull(manager.getFutureMeeting(-99));
-    }
-
-    private void checkMeeting(Meeting meeting) throws Exception {
-        assertNotNull(meeting);
-
-        assertEquals(contacts, meeting.getContacts());
-        assertEquals(date, meeting.getDate());
-        if (meeting_id != -1)
-            assertEquals(meeting_id, meeting.getId());
-        else
-            throw new Exception("Shouldn't have been given meeting_id of -1 ...");
     }
 
     @Test
@@ -220,7 +228,7 @@ public class ContactManagerImplTest {
         // Make arbitrary changes to contacts and date
         // so the next meeting will be different.
         date.set(2015, Calendar.APRIL, 18);
-        contacts.add(new ContactImpl(4, "Dave"));
+        contacts.add(addThenReturnContact("Dave", note));
 
         // Check that getFutureMeeting and getMeeting are equivalent
         // for a future meeting
@@ -270,7 +278,7 @@ public class ContactManagerImplTest {
 
     @Test
     public void testGetPastMeetingListPerContact() throws Exception {
-        setDateInFuture();
+        setDateToNow();
         int id1 = manager.addFutureMeeting(setOf(alice, bob, charlie), date);
         int id2 = manager.addFutureMeeting(setOf(alice, bob), date);
         int id3 = manager.addFutureMeeting(setOf(alice), date);
@@ -339,11 +347,14 @@ public class ContactManagerImplTest {
 
     @Test
     public void testAddMeetingNotes() throws Exception {
+        setDateToNow();
         meeting_id = manager.addFutureMeeting(contacts, date);
         manager.addMeetingNotes(meeting_id, note);
 
+        // Check that meeting is now in the past
         assertEquals(note, manager.getPastMeeting(meeting_id).getNotes());
 
+        // Chech that meeting is no longer in the future
         try {
             manager.getFutureMeeting(meeting_id);
         } catch (IllegalArgumentException err) {
@@ -352,6 +363,11 @@ public class ContactManagerImplTest {
         }
 
         throw new Exception("After adding a note to a future meeting, it remained a future meeting!!");
+    }
+
+    @Test
+    public void testAddMeetingNotesToMeetingNotHappenedYet() throws Exception {
+
     }
 
     @Test
