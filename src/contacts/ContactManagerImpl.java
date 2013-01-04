@@ -1,8 +1,6 @@
 package contacts;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Sam Wright
@@ -11,14 +9,42 @@ import java.util.Set;
  */
 public class ContactManagerImpl implements ContactManager {
     private final String filename;
+    private int last_contact_id = -1;
+    private int last_meeting_id = -1;
+    private Map<Integer,Contact> known_contacts = new HashMap<Integer, Contact>();
+    private Map<Integer, PastMeeting> past_meetings = new HashMap<Integer, PastMeeting>();
+    private Map<Integer, FutureMeeting> future_meetings = new HashMap<Integer, FutureMeeting>();
 
     public ContactManagerImpl(String filename) {
         this.filename = filename;
+        loadFromFile();
+    }
+
+    private void loadFromFile() {
+
+    }
+
+    private void ensureContactsAreKnown(Set<Contact> contacts) {
+        Set<Contact> unknown_contacts = new HashSet<Contact>(contacts);
+        unknown_contacts.removeAll(known_contacts.values());
+
+        if (!unknown_contacts.isEmpty())
+            throw new IllegalArgumentException("Unknown contacts in meeting: " + unknown_contacts);
     }
 
     @Override
     public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
-        return 0; // Dummy implementation
+        // Ensure date is in future (inclusive of today)
+        Calendar now = Calendar.getInstance();
+        if (date.before(now))
+            throw new IllegalArgumentException("Date " + date + " is in the past");
+
+        // Ensure contacts are known
+        ensureContactsAreKnown(contacts);
+
+        // Finally, add the meeting.
+        future_meetings.add(new FutureMeetingImpl(++last_meeting_id, date, new HashSet<Contact>(contacts)));
+        return last_meeting_id;
     }
 
     @Override
