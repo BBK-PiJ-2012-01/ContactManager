@@ -58,6 +58,8 @@ public interface ContactManager {
      */
     List<Meeting> getFutureMeetingList(Contact contact);
 
+    // TODO: checked test up to this point.
+
     /**
      * Returns the list of meetings that are scheduled for, or that took
      * place on, the specified date.

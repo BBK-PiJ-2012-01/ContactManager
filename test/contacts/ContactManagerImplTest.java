@@ -19,11 +19,13 @@ public class ContactManagerImplTest {
     private Calendar date;
     private String note = "Note";
     private int meeting_id;
-    private Contact alice, bob, charlie;
+    private Contact alice, bob, charlie, dave;
 
     @Before
     public void setUp() throws Exception {
         resetManager();
+
+        dave = new ContactImpl(4, "Dave");
 
         date = Calendar.getInstance();
         setDateInPast();
@@ -34,16 +36,24 @@ public class ContactManagerImplTest {
     private void resetManager() {
         manager = new ContactManagerImpl();
 
-        // Add contacts to manager
-        manager.addNewContact("Alice", "Note A");
-        manager.addNewContact("Bob", "Note B");
-        manager.addNewContact("Charlie", "Note C");
+        // Add contacts: alice, bob, charlie, to manager
+        alice = addThenReturnContact("Alice", "Note A");
+        bob = addThenReturnContact("Bob", "Note B");
+        charlie = addThenReturnContact("Charlie", "Note C");
 
-        // Extract Contact objects from manager
-        contacts = new HashSet<Contact>();
-        contacts.add(alice = (Contact) manager.getContacts("Alice").toArray()[0]);
-        contacts.add(bob = (Contact) manager.getContacts("Bob").toArray()[0]);
-        contacts.add(charlie = (Contact) manager.getContacts("Charlie").toArray()[0]);
+        // And also to 'contacts'
+        contacts = setOf(alice, bob, charlie);
+    }
+
+    private Contact addThenReturnContact(String name, String note) {
+        // Check there isn't a similarly-named contact already
+        assertTrue(manager.getContacts(name).isEmpty());
+
+        // Add contact to manager
+        manager.addNewContact(name, note);
+
+        // Extract Contact object from manager
+        return (Contact) manager.getContacts(name).toArray()[0];
     }
 
     private void setDateInPast() {
@@ -225,6 +235,22 @@ public class ContactManagerImplTest {
         checkMeetingsList(setOf(id1), manager.getFutureMeetingList(charlie));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetFutureMeetingListOfStranger() throws Exception {
+        manager.getFutureMeetingList(dave);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetPastMeetingListOfStranger() throws Exception {
+        manager.getPastMeetingList(dave);
+    }
+
+    /*
+     TODO:
+      testGetPastMeetingListOfContactWithNoMeetings
+      testGetFutureMeetingListOfContactWithNoMeetings
+      */
+
     @Test
     public void testMeetingListsPerContactAreUnique() throws Exception {
         testGetPastMeetingListPerContact();
@@ -240,17 +266,28 @@ public class ContactManagerImplTest {
         return new HashSet<T>(Arrays.asList(contents));
     }
 
-    private void checkMeetingsList(Set<Integer> expected_ids, List<Meeting> meetings) {
+    private void checkMeetingsList(Set<Integer> expected_ids, List<Meeting> meetings) throws Exception {
         // Checks that the returned meetings match the given ids
         Set<Integer> meeting_ids = new HashSet<Integer>();
         for (Meeting m : meetings) {
             meeting_ids.add(m.getId());
         }
-
         assertEquals(expected_ids, meeting_ids);
 
-        // TODO: Checks the given meetings list is in chronological order
+        // Checks there were no duplicates in the given list
+        assertEquals(meeting_ids.size(), meetings.size());
+
+        // Checks the given meetings list is in chronological order
         // (ie. soonest-first)
+        Meeting previous_meeting = null;
+        for (Meeting next_meeting : meetings) {
+            if (previous_meeting != null
+                    && next_meeting.getDate().before(previous_meeting.getDate())) {
+                throw new Exception("Meetings were not in chronological order");
+            }
+
+            previous_meeting = next_meeting;
+        }
     }
 
     @Test
