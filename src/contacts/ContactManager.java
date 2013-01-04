@@ -95,7 +95,7 @@ public interface ContactManager {
      * @throws NullPointerException     if any of the arguments is null.
      */
     void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text);
-// TODO: checked test up to this point.
+
     /**
      * Add notes to a meeting.
      *
@@ -138,7 +138,7 @@ public interface ContactManager {
      * @throws NullPointerException if the parameter is null.
      */
     Set<Contact> getContacts(String name);
-
+// TODO: checked test up to this point.
     /**
      * Save all data to disk.
      *

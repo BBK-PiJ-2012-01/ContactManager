@@ -365,9 +365,23 @@ public class ContactManagerImplTest {
         throw new Exception("After adding a note to a future meeting, it remained a future meeting!!");
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testAddMeetingNotesToMeetingNotHappenedYet() throws Exception {
+        setDateInFuture();
+        meeting_id = manager.addFutureMeeting(contacts, date);
+        manager.addMeetingNotes(meeting_id, note);
+    }
 
+    @Test(expected = NullPointerException.class)
+    public void testAddMeetingNotesWithNullNotes() throws Exception {
+        setDateToNow();
+        meeting_id = manager.addFutureMeeting(contacts, date);
+        manager.addMeetingNotes(meeting_id, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddMeetingNotesToNonexistentMeeting() throws Exception {
+        manager.addMeetingNotes(-99, note);
     }
 
     @Test
@@ -396,6 +410,12 @@ public class ContactManagerImplTest {
         assertEquals(setOf(alice, charlie), manager.getContacts("li"));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testGetContactsWithNullName() throws Exception {
+        String null_name = null;
+        manager.getContacts(null_name);
+    }
+
     @Test
     public void testGetContactsBySingleId() throws Exception {
         assertEquals(setOf(alice), manager.getContacts(alice.getId()));
@@ -410,6 +430,16 @@ public class ContactManagerImplTest {
         assertEquals(setOf(charlie, alice), manager.getContacts(charlie.getId(), alice.getId()));
 
         assertEquals(setOf(alice, bob, charlie), manager.getContacts(alice.getId(), bob.getId(), charlie.getId()));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetContactsByBadId() throws Exception {
+        manager.getContacts(-99);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetContactsByBadIdAmongstGood() throws Exception {
+        manager.getContacts(alice.getId(), -99);
     }
 
     @Test
