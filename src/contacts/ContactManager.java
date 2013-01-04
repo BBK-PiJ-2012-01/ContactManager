@@ -138,7 +138,7 @@ public interface ContactManager {
      * @throws NullPointerException if the parameter is null.
      */
     Set<Contact> getContacts(String name);
-// TODO: checked test up to this point.
+
     /**
      * Save all data to disk.
      *

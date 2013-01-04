@@ -1,10 +1,12 @@
 package contacts;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.util.*;
 
 
@@ -20,9 +22,11 @@ public class ContactManagerImplTest {
     private String note = "Note";
     private int meeting_id;
     private Contact alice, bob, charlie, dave;
+    private String filename = "test_contacts.txt";
 
     @Before
     public void setUp() throws Exception {
+        cleanUp();
         resetManager();
 
         dave = new ContactImpl(4, "Dave");
@@ -34,7 +38,7 @@ public class ContactManagerImplTest {
     }
 
     private void resetManager() {
-        manager = new ContactManagerImpl();
+        manager = new ContactManagerImpl(filename);
 
         // Add contacts: alice, bob, charlie, to manager
         alice = addThenReturnContact("Alice", "Note A");
@@ -386,7 +390,7 @@ public class ContactManagerImplTest {
 
     @Test
     public void testAddNewContact() throws Exception {
-        manager = new ContactManagerImpl();
+        manager = new ContactManagerImpl(filename);
         manager.addNewContact("Alice", note);
     }
 
@@ -441,9 +445,74 @@ public class ContactManagerImplTest {
     public void testGetContactsByBadIdAmongstGood() throws Exception {
         manager.getContacts(alice.getId(), -99);
     }
+// TODO: check that notes can be added to a past meeting
+    @Test
+    public void testFlushMeetings() throws Exception {
+        // Create meetings (contacts already added)
+        setDateInFuture();
+        int future_meeting_id = manager.addFutureMeeting(setOf(alice, bob), date);
+
+        setDateToNow();
+        int past_meeting_id = manager.addFutureMeeting(setOf(alice, charlie), date);
+        manager.addMeetingNotes(meeting_id, note);
+
+        // Save to file
+        manager.flush();
+
+        // Recreate manager (from file)
+        manager = new ContactManagerImpl(filename);
+
+        // Get flushed meetings
+        FutureMeeting future_meeting = manager.getFutureMeeting(future_meeting_id);
+        PastMeeting past_meeting = manager.getPastMeeting(past_meeting_id);
+
+        // Check meeting contacts
+        assertEquals(setOf(alice, bob), future_meeting.getContacts());
+        assertEquals(setOf(alice, charlie), past_meeting.getContacts());
+
+        // Check meeting dates
+        setDateInFuture();
+        assertEquals(date, future_meeting.getDate());
+        setDateToNow();
+        assertEquals(date, past_meeting.getDate());
+    }
 
     @Test
-    public void testFlush() throws Exception {
-        //manager.flush();
+    public void testFlushUsers() throws Exception {
+        // Save to file (contacts already in manager)
+        manager.flush();
+
+        // Recreate manager (from file)
+        manager = new ContactManagerImpl(filename);
+
+        // Get the new contact objects
+        Contact loaded_alice, loaded_bob, loaded_charlie;
+        loaded_alice = (Contact) manager.getContacts(alice.getId()).toArray()[0];
+        loaded_bob = (Contact) manager.getContacts(bob.getId()).toArray()[0];
+        loaded_charlie = (Contact) manager.getContacts(charlie.getId()).toArray()[0];
+
+        // Check loaded contacts have same information as previous contacts
+        assertContactsEqual(alice, loaded_alice);
+        assertContactsEqual(bob, loaded_bob);
+        assertContactsEqual(charlie, loaded_charlie);
+
+        // Check users can still be 'got' like before flush
+        testGetContactsByName();
+        testGetContactsBySingleId();
+        testGetContactsByMultipleIds();
+    }
+
+    private void assertContactsEqual(Contact expected, Contact got) {
+        assertEquals(expected.getId(), got.getId());
+        assertEquals(expected.getNotes(), got.getNotes());
+        assertEquals(expected.getName(), got.getName());
+    }
+
+    @After
+    public void cleanUp() {
+        File file = new File(filename);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 }

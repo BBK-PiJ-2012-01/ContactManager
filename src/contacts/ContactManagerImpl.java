@@ -10,6 +10,11 @@ import java.util.Set;
  * Time: 16:45
  */
 public class ContactManagerImpl implements ContactManager {
+
+    public ContactManagerImpl(String filename) {
+
+    }
+
     @Override
     public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
         return 0; // Dummy implementation
