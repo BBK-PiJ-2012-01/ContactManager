@@ -350,7 +350,7 @@ public class ContactManagerImplTest {
     }
 
     @Test
-    public void testAddMeetingNotes() throws Exception {
+    public void testAddMeetingNotesToFutureMeeting() throws Exception {
         setDateToNow();
         meeting_id = manager.addFutureMeeting(contacts, date);
         manager.addMeetingNotes(meeting_id, note);
@@ -367,6 +367,24 @@ public class ContactManagerImplTest {
         }
 
         throw new Exception("After adding a note to a future meeting, it remained a future meeting!!");
+    }
+
+    @Test
+    public void testAddMeetingNotesWithWhitespace() throws Exception {
+        setDateToNow();
+        meeting_id = manager.addFutureMeeting(contacts, date);
+        manager.addMeetingNotes(meeting_id, "\t \nHello\n ");
+        assertEquals("Hello", manager.getPastMeeting(meeting_id).getNotes());
+    }
+
+    @Test
+    public void testAddMeetingNotesToPastMeeting() throws Exception {
+        setDateToNow();
+        meeting_id = manager.addFutureMeeting(contacts, date);
+        manager.addMeetingNotes(meeting_id, "\t \n  Note One.");
+        manager.addMeetingNotes(meeting_id, "\n Note Two. ");
+
+        assertEquals("Note One.\nNote Two.", manager.getPastMeeting(meeting_id).getNotes());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -445,7 +463,7 @@ public class ContactManagerImplTest {
     public void testGetContactsByBadIdAmongstGood() throws Exception {
         manager.getContacts(alice.getId(), -99);
     }
-// TODO: check that notes can be added to a past meeting
+
     @Test
     public void testFlushMeetings() throws Exception {
         // Create meetings (contacts already added)
