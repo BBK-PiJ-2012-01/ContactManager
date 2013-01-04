@@ -34,14 +34,16 @@ public class ContactManagerImplTest {
     private void resetManager() {
         manager = new ContactManagerImpl();
 
-        contacts = new HashSet<Contact>();
-        contacts.add(alice = new ContactImpl(1, "Alice"));
-        contacts.add(bob = new ContactImpl(2, "Bob"));
-        contacts.add(charlie = new ContactImpl(3, "Charlie"));
+        // Add contacts to manager
+        manager.addNewContact("Alice", "Note A");
+        manager.addNewContact("Bob", "Note B");
+        manager.addNewContact("Charlie", "Note C");
 
-        for (Contact c : contacts) {
-            manager.addNewContact(c.getName(), c.getNotes());
-        }
+        // Extract Contact objects from manager
+        contacts = new HashSet<Contact>();
+        contacts.add(alice = (Contact) manager.getContacts("Alice").toArray()[0]);
+        contacts.add(bob = (Contact) manager.getContacts("Bob").toArray()[0]);
+        contacts.add(charlie = (Contact) manager.getContacts("Charlie").toArray()[0]);
     }
 
     private void setDateInPast() {
@@ -97,7 +99,6 @@ public class ContactManagerImplTest {
         PastMeeting meeting = manager.getPastMeeting(meeting_id);
 
         checkMeeting(meeting);
-        assertEquals(note, meeting.getNotes());
 
         // Check that getFutureMeeting fails
         try {
@@ -110,7 +111,10 @@ public class ContactManagerImplTest {
         throw new Exception("Adding a past meeting added a future meeting!!!");
     }
 
-    // TODO: add multiple meetings and check for duplicate ids
+    @Test
+    public void testGetNonexistentPastMeeting() throws Exception {
+        assertNull(manager.getPastMeeting(-99));
+    }
 
     @Test
     public void testGetFutureMeeting() throws Exception {
@@ -130,7 +134,14 @@ public class ContactManagerImplTest {
         throw new Exception("Adding a future meeting added a past meeting!!!");
     }
 
+    @Test
+    public void testGetNonexistentFutureMeeting() throws Exception {
+        assertNull(manager.getFutureMeeting(-99));
+    }
+
     private void checkMeeting(Meeting meeting) throws Exception {
+        assertNotNull(meeting);
+
         assertEquals(contacts, meeting.getContacts());
         assertEquals(date, meeting.getDate());
         if (meeting_id != -1)
@@ -155,6 +166,11 @@ public class ContactManagerImplTest {
         // for a future meeting
         testGetFutureMeeting();
         checkMeeting(manager.getMeeting(meeting_id));
+    }
+
+    @Test
+    public void testGetNonexistentMeeting() throws Exception {
+        assertNull(manager.getMeeting(-99));
     }
 
     @Test
@@ -225,41 +241,95 @@ public class ContactManagerImplTest {
     }
 
     private void checkMeetingsList(Set<Integer> expected_ids, List<Meeting> meetings) {
+        // Checks that the returned meetings match the given ids
         Set<Integer> meeting_ids = new HashSet<Integer>();
         for (Meeting m : meetings) {
             meeting_ids.add(m.getId());
         }
 
         assertEquals(expected_ids, meeting_ids);
+
+        // TODO: Checks the given meetings list is in chronological order
+        // (ie. soonest-first)
     }
 
     @Test
     public void testGetFutureMeetingListPerDate() throws Exception {
+        Calendar t1 = Calendar.getInstance();
+        t1.set(2013, Calendar.JANUARY, 2);
+        Calendar t2 = Calendar.getInstance();
+        t2.set(2013, Calendar.FEBRUARY, 5);
 
+        int id1 = manager.addFutureMeeting(contacts, t1);
+        int id2 = manager.addFutureMeeting(contacts, t1);
+        int id3 = manager.addFutureMeeting(contacts, t2);
+        int id4 = manager.addFutureMeeting(contacts, t2);
+
+        checkMeetingsList(setOf(id1, id2), manager.getFutureMeetingList(t1));
+        checkMeetingsList(setOf(id3, id4), manager.getFutureMeetingList(t2));
     }
 
     @Test
     public void testAddMeetingNotes() throws Exception {
+        meeting_id = manager.addFutureMeeting(contacts, date);
+        manager.addMeetingNotes(meeting_id, note);
 
+        assertEquals(note, manager.getPastMeeting(meeting_id).getNotes());
+
+        try {
+            manager.getFutureMeeting(meeting_id);
+        } catch (IllegalArgumentException err) {
+            System.out.println("Adding a note to future meeting made it a past meeting.  Good.");
+            return;
+        }
+
+        throw new Exception("After adding a note to a future meeting, it remained a future meeting!!");
     }
 
     @Test
     public void testAddNewContact() throws Exception {
+        manager = new ContactManagerImpl();
+        manager.addNewContact("Alice", note);
+    }
 
+    @Test(expected = NullPointerException.class)
+    public void testAddNullContact() throws Exception {
+        manager.addNewContact(null, note);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddContactWithNullNote() throws Exception {
+        manager.addNewContact("Alice", null);
     }
 
     @Test
-    public void testGetContacts() throws Exception {
+    public void testGetContactsByName() throws Exception {
+        assertEquals(setOf(alice), manager.getContacts("Alice"));
+        assertEquals(setOf(bob), manager.getContacts("Bob"));
+        assertEquals(setOf(charlie), manager.getContacts("Charlie"));
 
+        // Both Alice and Charlie contain the string "li"
+        assertEquals(setOf(alice, charlie), manager.getContacts("li"));
     }
 
     @Test
-    public void testGetContacts() throws Exception {
+    public void testGetContactsBySingleId() throws Exception {
+        assertEquals(setOf(alice), manager.getContacts(alice.getId()));
+        assertEquals(setOf(bob), manager.getContacts(bob.getId()));
+        assertEquals(setOf(charlie), manager.getContacts(charlie.getId()));
+    }
 
+    @Test
+    public void testGetContactsByMultipleIds() throws Exception {
+        assertEquals(setOf(alice, bob), manager.getContacts(alice.getId(), bob.getId()));
+        assertEquals(setOf(bob, charlie), manager.getContacts(bob.getId(), charlie.getId()));
+        assertEquals(setOf(charlie, alice), manager.getContacts(charlie.getId(), alice.getId()));
+
+        assertEquals(setOf(alice, bob, charlie), manager.getContacts(alice.getId(), bob.getId(), charlie.getId()));
     }
 
     @Test
     public void testFlush() throws Exception {
-
+        //manager.flush();
     }
 }
