@@ -1,6 +1,7 @@
 package contacts;
 
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -15,22 +16,22 @@ abstract public class AbstractMeeting implements Meeting {
 
     public AbstractMeeting(int id, Calendar date, Set<Contact> contacts) {
         this.id = id;
-        this.date = date;
-        this.contacts = contacts;
+        this.date = (Calendar) date.clone();
+        this.contacts = new HashSet<Contact>(contacts);
     }
 
     @Override
     public int getId() {
-        return 0; // Dummy implementation
+        return id;
     }
 
     @Override
     public Calendar getDate() {
-        return null; // Dummy implementation
+        return (Calendar) date.clone();
     }
 
     @Override
     public Set<Contact> getContacts() {
-        return null; // Dummy implementation
+        return new HashSet<Contact>(contacts);
     }
 }

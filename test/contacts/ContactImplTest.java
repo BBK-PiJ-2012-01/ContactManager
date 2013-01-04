@@ -57,13 +57,13 @@ public class ContactImplTest {
     @Test
     public void testGetTwoNotes() throws Exception {
         testAddTwoNotes();
-        assertEquals(note1 + "\n\n" + note2, c.getNotes());
+        assertEquals(note1 + "\n" + note2, c.getNotes());
     }
 
     @Test
     public void testNoteWhitespace() throws Exception {
         c.addNotes("  \n" + note1 + "\n  ");
         c.addNotes("\n " + note2 + " \n ");
-        assertEquals(note1 + "\n\n" + note2, c.getNotes());
+        assertEquals(note1 + "\n" + note2, c.getNotes());
     }
 }

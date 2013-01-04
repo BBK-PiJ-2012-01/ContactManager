@@ -8,29 +8,34 @@ package contacts;
 public class ContactImpl implements Contact {
     private final int id;
     private final String name;
+    private String notes = "";
 
     public ContactImpl(int id, String name) {
         this.id = id;
-        this.name = name;
+        this.name = String.valueOf(name);
     }
 
     @Override
     public int getId() {
-        return 0; // Dummy implementation
+        return id;
     }
 
     @Override
     public String getName() {
-        return null; // Dummy implementation
+        return String.valueOf(name);
     }
 
     @Override
     public String getNotes() {
-        return null; // Dummy implementation
+        return String.valueOf(notes);
     }
 
     @Override
     public void addNotes(String note) {
-        // Dummy implementation
+        if (notes.isEmpty()) {
+            notes = String.valueOf(note.trim());
+        } else {
+            notes = notes + '\n' + note.trim();
+        }
     }
 }

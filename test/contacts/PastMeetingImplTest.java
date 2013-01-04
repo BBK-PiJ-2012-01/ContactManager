@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
  */
 public class PastMeetingImplTest {
     private PastMeeting m;
-    private String notes = "Initial Note";
+    private String notes = "Initial Note ";
 
     @Before
     public void setUp() throws Exception {
