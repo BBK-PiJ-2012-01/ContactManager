@@ -58,8 +58,6 @@ public interface ContactManager {
      */
     List<Meeting> getFutureMeetingList(Contact contact);
 
-    // TODO: checked test up to this point.
-
     /**
      * Returns the list of meetings that are scheduled for, or that took
      * place on, the specified date.
@@ -86,7 +84,6 @@ public interface ContactManager {
      */
     List<PastMeeting> getPastMeetingList(Contact contact);
 
-
     /**
      * Create a new record for a meeting that took place in the past.
      *
@@ -98,7 +95,7 @@ public interface ContactManager {
      * @throws NullPointerException     if any of the arguments is null.
      */
     void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text);
-
+// TODO: checked test up to this point.
     /**
      * Add notes to a meeting.
      *

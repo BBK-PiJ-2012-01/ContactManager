@@ -64,16 +64,48 @@ public class ContactManagerImplTest {
         date.set(2014, Calendar.DECEMBER, 23);
     }
 
+    private static <T> Set<T> setOf(T... contents) {
+        return new HashSet<T>(Arrays.asList(contents));
+    }
+
+    private void checkMeetingsList(Set<Integer> expected_ids, List<Meeting> meetings) throws Exception {
+        // Checks that the returned meetings match the given ids
+        Set<Integer> meeting_ids = new HashSet<Integer>();
+        for (Meeting m : meetings) {
+            meeting_ids.add(m.getId());
+        }
+        assertEquals(expected_ids, meeting_ids);
+
+        // Checks there were no duplicates in the given list
+        assertEquals(meeting_ids.size(), meetings.size());
+
+        // Checks the given meetings list is in chronological order
+        // (ie. soonest-first)
+        Meeting previous_meeting = null;
+        for (Meeting next_meeting : meetings) {
+            if (previous_meeting != null
+                    && next_meeting.getDate().before(previous_meeting.getDate())) {
+                throw new Exception("Meetings were not in chronological order");
+            }
+
+            previous_meeting = next_meeting;
+        }
+    }
+
     @Test
     public void testAddNewPastMeeting() throws Exception {
         setDateInPast();
         manager.addNewPastMeeting(contacts, date, note);
+
+        // Strangely, adding a past meeting in the future is fine.
+        setDateInFuture();
+        manager.addNewPastMeeting(contacts, date, note);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAddNewPastMeetingInFuture() throws Exception {
-        setDateInFuture();
-        manager.addNewPastMeeting(contacts, date, note);
+    public void testAddNewPastMeetingWithNobody() throws Exception {
+        setDateInPast();
+        manager.addNewPastMeeting(new HashSet<Contact>(), date, note);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -81,6 +113,24 @@ public class ContactManagerImplTest {
         setDateInPast();
         contacts.add(new ContactImpl(4, "Stranger"));
         manager.addNewPastMeeting(contacts, date, note);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddNewPastMeetingWithNullContacts() throws Exception {
+        setDateInPast();
+        manager.addNewPastMeeting(null, date, note);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddNewPastMeetingWithNullDate() throws Exception {
+        setDateInPast();
+        manager.addNewPastMeeting(contacts, null, note);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddNewPastMeetingWithNullNote() throws Exception {
+        setDateInPast();
+        manager.addNewPastMeeting(contacts, date, null);
     }
 
     @Test
@@ -245,11 +295,17 @@ public class ContactManagerImplTest {
         manager.getPastMeetingList(dave);
     }
 
-    /*
-     TODO:
-      testGetPastMeetingListOfContactWithNoMeetings
-      testGetFutureMeetingListOfContactWithNoMeetings
-      */
+    @Test()
+    public void testGetFutureMeetingListOfInactive() throws Exception {
+        dave = addThenReturnContact("Dave", note);
+        assertTrue(manager.getFutureMeetingList(dave).isEmpty());
+    }
+
+    @Test()
+    public void testGetPastMeetingListOfInactive() throws Exception {
+        dave = addThenReturnContact("Dave", note);
+        assertTrue(manager.getPastMeetingList(dave).isEmpty());
+    }
 
     @Test
     public void testMeetingListsPerContactAreUnique() throws Exception {
@@ -262,40 +318,14 @@ public class ContactManagerImplTest {
         testGetPastMeetingListPerContact();
     }
 
-    private static <T> Set<T> setOf(T... contents) {
-        return new HashSet<T>(Arrays.asList(contents));
-    }
-
-    private void checkMeetingsList(Set<Integer> expected_ids, List<Meeting> meetings) throws Exception {
-        // Checks that the returned meetings match the given ids
-        Set<Integer> meeting_ids = new HashSet<Integer>();
-        for (Meeting m : meetings) {
-            meeting_ids.add(m.getId());
-        }
-        assertEquals(expected_ids, meeting_ids);
-
-        // Checks there were no duplicates in the given list
-        assertEquals(meeting_ids.size(), meetings.size());
-
-        // Checks the given meetings list is in chronological order
-        // (ie. soonest-first)
-        Meeting previous_meeting = null;
-        for (Meeting next_meeting : meetings) {
-            if (previous_meeting != null
-                    && next_meeting.getDate().before(previous_meeting.getDate())) {
-                throw new Exception("Meetings were not in chronological order");
-            }
-
-            previous_meeting = next_meeting;
-        }
-    }
-
     @Test
     public void testGetFutureMeetingListPerDate() throws Exception {
         Calendar t1 = Calendar.getInstance();
         t1.set(2013, Calendar.JANUARY, 2);
         Calendar t2 = Calendar.getInstance();
         t2.set(2013, Calendar.FEBRUARY, 5);
+        Calendar t3 = Calendar.getInstance();
+        t3.set(2013, Calendar.FEBRUARY, 7);
 
         int id1 = manager.addFutureMeeting(contacts, t1);
         int id2 = manager.addFutureMeeting(contacts, t1);
@@ -304,6 +334,7 @@ public class ContactManagerImplTest {
 
         checkMeetingsList(setOf(id1, id2), manager.getFutureMeetingList(t1));
         checkMeetingsList(setOf(id3, id4), manager.getFutureMeetingList(t2));
+        assertTrue(manager.getFutureMeetingList(t3).isEmpty());
     }
 
     @Test
