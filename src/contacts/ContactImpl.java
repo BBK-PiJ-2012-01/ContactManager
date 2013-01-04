@@ -12,7 +12,7 @@ public class ContactImpl implements Contact {
 
     public ContactImpl(int id, String name) {
         this.id = id;
-        this.name = String.valueOf(name);
+        this.name = name;
     }
 
     @Override
@@ -22,18 +22,18 @@ public class ContactImpl implements Contact {
 
     @Override
     public String getName() {
-        return String.valueOf(name);
+        return name;
     }
 
     @Override
     public String getNotes() {
-        return String.valueOf(notes);
+        return notes;
     }
 
     @Override
     public void addNotes(String note) {
         if (notes.isEmpty()) {
-            notes = String.valueOf(note.trim());
+            notes = note.trim();
         } else {
             notes = notes + '\n' + note.trim();
         }

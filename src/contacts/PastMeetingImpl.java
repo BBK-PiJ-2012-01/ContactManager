@@ -13,11 +13,11 @@ public class PastMeetingImpl extends AbstractMeeting implements PastMeeting {
 
     public PastMeetingImpl(int id, Calendar date, Set<Contact> contacts, String notes) {
         super(id, date, contacts);
-        this.notes = String.valueOf(notes);
+        this.notes = notes;
     }
 
     @Override
     public String getNotes() {
-        return String.valueOf(notes);
+        return notes;
     }
 }

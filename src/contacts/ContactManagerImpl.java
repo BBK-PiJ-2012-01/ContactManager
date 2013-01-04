@@ -10,9 +10,10 @@ import java.util.Set;
  * Time: 16:45
  */
 public class ContactManagerImpl implements ContactManager {
+    private final String filename;
 
     public ContactManagerImpl(String filename) {
-
+        this.filename = filename;
     }
 
     @Override
