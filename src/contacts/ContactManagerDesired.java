@@ -7,15 +7,17 @@ import java.util.Set;
 /**
  * A class to manage your contacts and meetings.
  */
-public interface ContactManager {
+public interface ContactManagerDesired {
     /**
      * Add a new meeting to be held in the future.
      *
      * @param contacts a list of contacts who will participate in the meeting.
      * @param date the date on which the meeting will take place.
      * @return the ID for the meeting.
-     * @throws IllegalArgumentException if the meeting is set for a time in the past,
-     *      or if any contact is unknown / non-existent.
+     * @throws IllegalArgumentException if the list of contacts is empty,
+     *      or any of the contacts are unknown or null,
+     *      or if the meeting is set for a time in the past.
+     * @throws NullPointerException if any of the arguments are null.
      */
     int addFutureMeeting(Set<Contact> contacts, Calendar date);
 
@@ -53,7 +55,7 @@ public interface ContactManager {
      * duplicates.
      *
      * @param contact one of the user’s contacts.
-     * @return the list of future meeting(s) scheduled with this contact.
+     * @return the list of future meeting(s) scheduled with this contact (maybe empty).
      * @throws IllegalArgumentException if the contact does not exist.
      */
     List<Meeting> getFutureMeetingList(Contact contact);
@@ -88,11 +90,12 @@ public interface ContactManager {
      * Create a new record for a meeting that took place in the past.
      *
      * @param contacts a list of participants.
-     * @param date     the date on which the meeting took place.
-     * @param text     messages to be added about the meeting.
-     * @throws IllegalArgumentException if the list of contacts is
-     *      empty, or any of the contacts do not exist.
-     * @throws NullPointerException     if any of the arguments are null.
+     * @param date the date on which the meeting took place.
+     * @param text messages to be added about the meeting.
+     * @throws IllegalArgumentException if the list of contacts is empty,
+     *      or any of the contacts are unknown or null,
+     *      or if the meeting is set for a time in the future.
+     * @throws NullPointerException if any of the arguments are null.
      */
     void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text);
 
@@ -126,7 +129,7 @@ public interface ContactManager {
      *
      * @param ids an arbitrary number of contact IDs.
      * @return a list containing the contacts who correspond to the IDs.
-     * @throws IllegalArgumentException if any of the IDs does not correspond to a real contact.
+     * @throws IllegalArgumentException if any of the IDs does not correspond to a known contact.
      */
     Set<Contact> getContacts(int... ids);
 

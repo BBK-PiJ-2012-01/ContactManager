@@ -34,6 +34,11 @@ public class ContactManagerImpl implements ContactManager {
 
     @Override
     public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
+        /*
+         TODO: fix ContactManager so addFutureMeeting throws IllegalArgumentException when contacts.isEmpty()
+         TODO: fix ContactManager so addFutureMeeting throws NullPointerException when 'date == null'
+          */
+
         // Ensure date is in future (inclusive of today)
         Calendar now = Calendar.getInstance();
         if (date.before(now))
@@ -43,8 +48,9 @@ public class ContactManagerImpl implements ContactManager {
         ensureContactsAreKnown(contacts);
 
         // Finally, add the meeting.
-        future_meetings.add(new FutureMeetingImpl(++last_meeting_id, date, new HashSet<Contact>(contacts)));
-        return last_meeting_id;
+        int id = ++last_meeting_id;
+        future_meetings.put(id, new FutureMeetingImpl(id, date, new HashSet<Contact>(contacts)));
+        return id;
     }
 
     @Override
@@ -79,7 +85,21 @@ public class ContactManagerImpl implements ContactManager {
 
     @Override
     public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
-        // Dummy implementation
+        // Ensure date is in future (inclusive of today)
+        Calendar now = Calendar.getInstance();
+        if (date.after(now))
+            throw new IllegalArgumentException("Date " + date + " is in the future");
+
+        // Ensure at least one contact will attend
+        if (contacts.isEmpty())
+            throw new IllegalArgumentException("No contacts at meeting");
+
+        // Ensure contacts are known
+        ensureContactsAreKnown(contacts);
+
+        // Finally, add the meeting.
+        int id = ++last_meeting_id;
+        past_meetings.put(id, new PastMeetingImpl(id, date, new HashSet<Contact>(contacts), text));
     }
 
     @Override
