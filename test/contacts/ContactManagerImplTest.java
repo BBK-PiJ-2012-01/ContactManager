@@ -31,9 +31,6 @@ public class ContactManagerImplTest {
 
         dave = new ContactImpl(4, "Dave");
 
-        date = Calendar.getInstance();
-        setDateInPast();
-
         meeting_id = -1;
     }
 
@@ -61,11 +58,13 @@ public class ContactManagerImplTest {
     }
 
     private void setDateInPast() {
+        date = Calendar.getInstance();
         date.set(2000, Calendar.APRIL, 13);
     }
 
     private void setDateInFuture() {
-        date.set(2014, Calendar.DECEMBER, 23);
+        date = Calendar.getInstance();
+        date.set(2054, Calendar.DECEMBER, 23);
     }
 
     /**
@@ -119,9 +118,9 @@ public class ContactManagerImplTest {
         setDateInPast();
         manager.addNewPastMeeting(contacts, date, note);
 
-        // Strangely, adding a past meeting in the future is fine.
-        setDateInFuture();
-        manager.addNewPastMeeting(contacts, date, note);
+        // TODO: Strangely, adding a past meeting in the future is fine.
+        //setDateInFuture();
+        //manager.addNewPastMeeting(contacts, date, note);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -201,8 +200,9 @@ public class ContactManagerImplTest {
 
     @Test
     public void testGetFutureMeeting() throws Exception {
-        int id = manager.addFutureMeeting(contacts, date);
-        FutureMeeting meeting = manager.getFutureMeeting(id);
+        setDateInFuture();
+        meeting_id = manager.addFutureMeeting(contacts, date);
+        FutureMeeting meeting = manager.getFutureMeeting(meeting_id);
 
         checkMeeting(meeting);
 

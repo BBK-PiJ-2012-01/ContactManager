@@ -2,6 +2,7 @@ package contacts;
 
 import sun.text.resources.CollationData_el;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -50,6 +51,11 @@ public class ContactManagerImpl implements ContactManager {
             throw new IllegalArgumentException("contact '" + contact.getName() + "' does is not known");
     }
 
+    private String getSimpleCalendarString(Calendar date) {
+        SimpleDateFormat uk_date_format = new SimpleDateFormat("dd/MM/yyyy");
+        return uk_date_format.format(date.getTime());
+    }
+
     @Override
     public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
         if (date == null)
@@ -58,7 +64,7 @@ public class ContactManagerImpl implements ContactManager {
         // Ensure date is in future (inclusive of today)
         Calendar now = Calendar.getInstance();
         if (date.before(now))
-            throw new IllegalArgumentException("Date " + date + " is in the past");
+            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the past");
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -100,7 +106,6 @@ public class ContactManagerImpl implements ContactManager {
         } else {
             return meeting;
         }
-
     }
 
     private <T extends Meeting> List<T> getSortedMeetingList(List<T> from_meetings_list) {
@@ -132,7 +137,7 @@ public class ContactManagerImpl implements ContactManager {
      * I would like to use this in getFutureMeetingList and getPastMeetingList, but the former
      * needs List<Meeting> and the latter needs List<PastMeeting>, complicating issues...
      *
-     * As such, this isn't used.
+     * As such, this isn't used. TODO: delete this.
      */
     private List<Meeting> filterMeetingsForContact(Collection<? extends Meeting> meetings, Contact contact) {
         List<Meeting> meetings_with_contact = new LinkedList<Meeting>();
@@ -196,7 +201,7 @@ public class ContactManagerImpl implements ContactManager {
         // Ensure date is in future (inclusive of today)
         Calendar now = Calendar.getInstance();
         if (date.after(now))
-            throw new IllegalArgumentException("Date " + date + " is in the future");
+            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the future");
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -206,24 +211,94 @@ public class ContactManagerImpl implements ContactManager {
         past_meetings.put(id, new PastMeetingImpl(id, date, new HashSet<Contact>(contacts), text));
     }
 
+    private void addExistingMeetingToPast(Meeting meeting, String text) {
+        // Check meeting is in the past
+        Calendar now = Calendar.getInstance();
+        if (meeting.getDate().after(now))
+            throw new IllegalArgumentException("Date " + getSimpleCalendarString(meeting.getDate()) + " is in the future");
+
+        // Recreate as past meeting
+        PastMeeting new_meeting = new PastMeetingImpl(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);
+
+        // Put in past_meetings (if meeting is already in past_meetings, this overwrites it).
+        past_meetings.put(meeting.getId(), new_meeting);
+    }
+
     @Override
     public void addMeetingNotes(int id, String text) {
-        // Dummy implementation
+        if (text == null)
+            throw new NullPointerException("text is null");
+        text = text.trim();
+
+        if (future_meetings.containsKey(id)) {
+            Meeting meeting = future_meetings.get(id);
+
+            // If the meeting is in the future, this will throw the appropriate exception
+            addExistingMeetingToPast(meeting, text);
+
+            // If no exception was thrown, then it worked.  Can now remove from future_meetings
+            future_meetings.remove(id);
+        } else if (past_meetings.containsKey(id)) {
+            PastMeeting meeting = past_meetings.remove(id);
+
+            // Concatenate old and new notes
+            String total_notes = meeting.getNotes() + '\n' + text;
+
+            // If the meeting is in the future, this will throw the appropriate exception, and the original is kept.
+            // If it succeeds, it will overwrite the previous 'meeting' object in the past_meetings map.
+            addExistingMeetingToPast(meeting, total_notes);
+        } else {
+            throw new IllegalArgumentException("Meeting Id " + id + "does not exist");
+        }
     }
 
     @Override
     public void addNewContact(String name, String notes) {
-        // Dummy implementation
+        // Check name is not null
+        if (name == null)
+            throw new NullPointerException("text is null");
+
+        // Check notes is not null
+        if (notes == null)
+            throw new NullPointerException("notes is null");
+
+        int id = ++last_contact_id;
+        Contact contact = new ContactImpl(id, name);
+
+        // Add notes to contact.  It will automatically remove whitespace.
+        contact.addNotes(notes);
+
+        known_contacts.put(id, contact);
     }
 
     @Override
     public Set<Contact> getContacts(int... ids) {
-        return null; // Dummy implementation
+        Set<Contact> contacts = new HashSet<Contact>();
+
+        for (int id : ids) {
+            Contact contact = known_contacts.get(id);
+
+            // Check that contact is known
+            if (contact == null)
+                throw new IllegalArgumentException("Contact with id " + id + " does not exist");
+
+            contacts.add(contact);
+        }
+
+        return contacts;
     }
 
     @Override
     public Set<Contact> getContacts(String name) {
-        return null; // Dummy implementation
+        Set<Contact> matching_contacts = new HashSet<Contact>();
+
+        for (Contact contact : known_contacts.values()) {
+            if (contact.getName().contains(name)) {
+                matching_contacts.add(contact);
+            }
+        }
+
+        return matching_contacts;
     }
 
     @Override
