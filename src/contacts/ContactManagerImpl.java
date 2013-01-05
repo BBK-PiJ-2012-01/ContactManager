@@ -62,9 +62,7 @@ public class ContactManagerImpl implements ContactManager {
             throw new NullPointerException("date is null");
 
         // Ensure date is in future (inclusive of today)
-        Calendar now = Calendar.getInstance();
-        if (date.before(now))
-            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the past");
+        checkDateInFuture(date);
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -73,6 +71,24 @@ public class ContactManagerImpl implements ContactManager {
         int id = ++last_meeting_id;
         future_meetings.put(id, new FutureMeetingImpl(id, date, new HashSet<Contact>(contacts)));
         return id;
+    }
+
+    private void checkDateInFuture(Calendar date) {
+        Calendar start_of_today = Calendar.getInstance();
+        start_of_today.set(Calendar.HOUR_OF_DAY, 0);
+        start_of_today.set(Calendar.MINUTE, 0);
+        start_of_today.set(Calendar.SECOND, 0);
+        if (date.before(start_of_today) && !date.equals(start_of_today))
+            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the past - now is " + getSimpleCalendarString(start_of_today));
+    }
+
+    private void checkDateInPast(Calendar date) {
+        Calendar end_of_today = Calendar.getInstance();
+        end_of_today.set(Calendar.HOUR_OF_DAY, 23);
+        end_of_today.set(Calendar.MINUTE, 59);
+        end_of_today.set(Calendar.SECOND, 59);
+        if (date.after(end_of_today))
+            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the past - now is " + getSimpleCalendarString(end_of_today));
     }
 
     @Override
@@ -159,6 +175,7 @@ public class ContactManagerImpl implements ContactManager {
                 meetings_with_contact.add(meeting);
             }
         }
+
         return getSortedMeetingList(meetings_with_contact);
     }
 
@@ -199,9 +216,7 @@ public class ContactManagerImpl implements ContactManager {
             throw new NullPointerException("text is null");
 
         // Ensure date is in future (inclusive of today)
-        Calendar now = Calendar.getInstance();
-        if (date.after(now))
-            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the future");
+        checkDateInPast(date);
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -212,10 +227,12 @@ public class ContactManagerImpl implements ContactManager {
     }
 
     private void addExistingMeetingToPast(Meeting meeting, String text) {
-        // Check meeting is in the past
-        Calendar now = Calendar.getInstance();
-        if (meeting.getDate().after(now))
-            throw new IllegalArgumentException("Date " + getSimpleCalendarString(meeting.getDate()) + " is in the future");
+        // Check meeting is in the past (inclusive of today)
+        try {
+            checkDateInPast(meeting.getDate());
+        } catch (IllegalArgumentException err) {
+            throw new IllegalStateException(err);
+        }
 
         // Recreate as past meeting
         PastMeeting new_meeting = new PastMeetingImpl(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);

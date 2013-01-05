@@ -333,11 +333,11 @@ public class ContactManagerImplTest {
     @Test
     public void testGetFutureMeetingListPerDate() throws Exception {
         Calendar t1 = Calendar.getInstance();
-        t1.set(2013, Calendar.JANUARY, 2);
+        t1.set(2053, Calendar.JANUARY, 2);
         Calendar t2 = Calendar.getInstance();
-        t2.set(2013, Calendar.FEBRUARY, 5);
+        t2.set(2053, Calendar.FEBRUARY, 5);
         Calendar t3 = Calendar.getInstance();
-        t3.set(2013, Calendar.FEBRUARY, 7);
+        t3.set(2053, Calendar.FEBRUARY, 7);
 
         int id1 = manager.addFutureMeeting(contacts, t1);
         int id2 = manager.addFutureMeeting(contacts, t1);
