@@ -175,7 +175,7 @@ public class ContactManagerImpl implements ContactManager {
                 meetings_with_contact.add(meeting);
             }
         }
-
+        System.out.format("Contact %s has %d meetings\n", contact.getName(), meetings_with_contact.size());
         return getSortedMeetingList(meetings_with_contact);
     }
 
@@ -204,6 +204,7 @@ public class ContactManagerImpl implements ContactManager {
                 meetings_with_contact.add(meeting);
             }
         }
+        System.out.format("Contact %s has %d meetings\n", contact.getName(), meetings_with_contact.size());
         return getSortedMeetingList(meetings_with_contact);
     }
 

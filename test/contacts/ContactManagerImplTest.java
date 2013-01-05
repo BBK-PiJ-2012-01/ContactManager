@@ -78,7 +78,7 @@ public class ContactManagerImplTest {
         return new HashSet<T>(Arrays.asList(contents));
     }
 
-    private void checkMeetingsList(Set<Integer> expected_ids, List<Meeting> meetings) throws Exception {
+    private void checkMeetingsList(Set<Integer> expected_ids, List<? extends Meeting> meetings) throws Exception {
         // Checks that the returned meetings match the given ids
         Set<Integer> meeting_ids = new HashSet<Integer>();
         for (Meeting m : meetings) {
@@ -292,9 +292,9 @@ public class ContactManagerImplTest {
             manager.addMeetingNotes(id, note);
         }
 
-        checkMeetingsList(setOf(id1, id2, id3), manager.getFutureMeetingList(alice));
-        checkMeetingsList(setOf(id1, id2), manager.getFutureMeetingList(bob));
-        checkMeetingsList(setOf(id1), manager.getFutureMeetingList(charlie));
+        checkMeetingsList(setOf(id1, id2, id3), manager.getPastMeetingList(alice));
+        checkMeetingsList(setOf(id1, id2), manager.getPastMeetingList(bob));
+        checkMeetingsList(setOf(id1), manager.getPastMeetingList(charlie));
     }
 
     @Test(expected = IllegalArgumentException.class)
