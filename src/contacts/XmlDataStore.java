@@ -1,6 +1,8 @@
 package contacts;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -9,9 +11,15 @@ import java.util.Set;
  * Time: 20:03
  */
 public class XmlDataStore implements DataStore {
+    private Map<Integer, Contact> known_contacts = new HashMap<Integer, Contact>();
+    private Map<Integer, PastMeeting> past_meetings = new HashMap<Integer, PastMeeting>();
+    private Map<Integer, FutureMeeting> future_meetings = new HashMap<Integer, FutureMeeting>();
+
     @Override
-    public void addContacts(Collection<Contact> contacts) {
-        // Dummy implementation
+    public void setContacts(Collection<Contact> contacts) {
+        for (Contact contact : contacts) {
+            if ()
+        }
     }
 
     @Override
@@ -20,7 +28,7 @@ public class XmlDataStore implements DataStore {
     }
 
     @Override
-    public void addFutureMeetings(Collection<FutureMeeting> meetings) {
+    public void setFutureMeetings(Collection<FutureMeeting> meetings) {
         // Dummy implementation
     }
 
@@ -30,7 +38,7 @@ public class XmlDataStore implements DataStore {
     }
 
     @Override
-    public void addPastMeetings(Collection<PastMeeting> meetings) {
+    public void setPastMeetings(Collection<PastMeeting> meetings) {
         // Dummy implementation
     }
 

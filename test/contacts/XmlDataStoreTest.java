@@ -18,9 +18,9 @@ import java.util.Set;
  */
 public class XmlDataStoreTest {
     private DataStore doc;
-    private Contact alice, bob, charlie, charlie_imposter;
-    private FutureMeeting fm1, fm2, fm3, fm3_imposter;
-    private PastMeeting pm1, pm2, pm3, pm3_imposter;
+    private Contact alice, bob, charlie;
+    private FutureMeeting fm1, fm2, fm3;
+    private PastMeeting pm1, pm2, pm3;
     private String filename = "data_store_TEST.xml";
     private String notes1 = "Notes 1";
     private String notes2 = "Notes 2";
@@ -32,7 +32,6 @@ public class XmlDataStoreTest {
         alice = new ContactImpl(1, "Alice");
         bob = new ContactImpl(2, "Bob");
         charlie = new ContactImpl(3, "Charlie");
-        charlie_imposter = new ContactImpl(3, "Imposter");
 
         alice.addNotes(notes1);
         bob.addNotes(notes2);
@@ -41,12 +40,10 @@ public class XmlDataStoreTest {
         fm1 = new FutureMeetingImpl(1, getFutureDate(1), setOf(alice, bob, charlie));
         fm2 = new FutureMeetingImpl(2, getFutureDate(2), setOf(alice, bob));
         fm3 = new FutureMeetingImpl(3, getFutureDate(3), setOf(alice));
-        fm3_imposter = new FutureMeetingImpl(3, getFutureDate(4), setOf(bob));
 
         pm1 = new PastMeetingImpl(4, getPastDate(1), setOf(alice, bob, charlie), notes1);
         pm2 = new PastMeetingImpl(5, getPastDate(2), setOf(alice, bob), notes2);
         pm3 = new PastMeetingImpl(6, getPastDate(3), setOf(alice), notes3);
-        pm3_imposter = new PastMeetingImpl(3, getFutureDate(4), setOf(bob), "");
     }
 
     private Calendar getFutureDate(int seed) {
@@ -66,107 +63,62 @@ public class XmlDataStoreTest {
     }
 
     @Test
-    public void testAddContacts() throws Exception {
-        doc.addContacts(setOf(alice, bob));
-        doc.addContacts(setOf(charlie));
-
-        assertEquals(setOf(alice, bob, charlie), doc.getContacts());
-    }
-
-    @Test
-    public void testAddExistingContacts() throws Exception {
-        doc.addContacts(setOf(alice, bob));
-        doc.addContacts(setOf(bob, charlie));
-
+    public void testSetContacts() throws Exception {
+        doc.setContacts(setOf(alice, bob, charlie));
         assertEquals(setOf(alice, bob, charlie), doc.getContacts());
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddNullContacts() throws Exception {
-        doc.addContacts(null);
+    public void testSetNullContacts() throws Exception {
+        doc.setContacts(null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddNullContact() throws Exception {
+    public void testSetNullContact() throws Exception {
         Contact null_contact = null;
-        doc.addContacts(setOf(null_contact));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testAddImposterContact() throws Exception {
-        doc.addContacts(setOf(charlie, charlie_imposter));
+        doc.setContacts(setOf(null_contact));
     }
 
     @Test
-    public void testAddFutureMeetings() throws Exception {
-        doc.addFutureMeetings(setOf(fm1, fm2));
-        doc.addFutureMeetings(setOf(fm3));
-
-        assertEquals(setOf(fm1, fm2, fm3), doc.getFutureMeetings());
-    }
-
-    @Test
-    public void testAddExistingFutureMeetings() throws Exception {
-        doc.addFutureMeetings(setOf(fm1, fm2));
-        doc.addFutureMeetings(setOf(fm2, fm3));
-
+    public void testSetFutureMeetings() throws Exception {
+        doc.setFutureMeetings(setOf(fm1, fm2, fm3));
         assertEquals(setOf(fm1, fm2, fm3), doc.getFutureMeetings());
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddNullFutureMeetings() throws Exception {
-        doc.addFutureMeetings(null);
+    public void testSetNullFutureMeetings() throws Exception {
+        doc.setFutureMeetings(null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddNullFutureMeeting() throws Exception {
+    public void testSetNullFutureMeeting() throws Exception {
         FutureMeeting null_meeting = null;
-        doc.addFutureMeetings(setOf(null_meeting));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testAddImposterFutureMeeting() throws Exception {
-        doc.addFutureMeetings(setOf(fm3, fm3_imposter));
+        doc.setFutureMeetings(setOf(null_meeting));
     }
 
     @Test
-    public void testAddPastMeetings() throws Exception {
-        doc.addPastMeetings(setOf(pm1, pm2));
-        doc.addPastMeetings(setOf(pm3));
-
-        assertEquals(setOf(pm1, pm2, pm3), doc.getPastMeetings());
-    }
-
-    @Test
-    public void testAddExistingPastMeetings() throws Exception {
-        doc.addPastMeetings(setOf(pm1, pm2));
-        doc.addPastMeetings(setOf(pm2, pm3));
-
+    public void testSetPastMeetings() throws Exception {
+        doc.setPastMeetings(setOf(pm1, pm2, pm3));
         assertEquals(setOf(pm1, pm2, pm3), doc.getPastMeetings());
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddNullPastMeetings() throws Exception {
-        doc.addPastMeetings(null);
+    public void testSetNullPastMeetings() throws Exception {
+        doc.setPastMeetings(null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddNullPastMeeting() throws Exception {
+    public void testSetNullPastMeeting() throws Exception {
         PastMeeting null_meeting = null;
-        doc.addPastMeetings(setOf(null_meeting));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testAddImposterPastMeeting() throws Exception {
-        doc.addPastMeetings(setOf(pm3, pm3_imposter));
+        doc.setPastMeetings(setOf(null_meeting));
     }
 
     @Test
     public void testWriteToFilename() throws Exception {
         // Add data to doc
-        testAddContacts();
-        testAddFutureMeetings();
-        testAddPastMeetings();
+        testSetContacts();
+        testSetFutureMeetings();
+        testSetPastMeetings();
 
         // Save to file
         doc.writeToFilename(filename);
@@ -249,4 +201,6 @@ public class XmlDataStoreTest {
         int difference = expected.compareTo(got);
         assertTrue(Math.abs(difference) < 1000);
     }
+
+    // TODO: test for writeToFilename and loadFromFilename exceptions...
 }
