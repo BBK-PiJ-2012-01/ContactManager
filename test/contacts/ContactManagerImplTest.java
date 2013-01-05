@@ -91,7 +91,7 @@ public class ContactManagerImplTest {
         assertEquals(meeting_ids.size(), meetings.size());
 
         // Checks the given meetings list is in chronological order
-        // (ie. soonest-first)
+        // (ie. earliest-first)
         Meeting previous_meeting = null;
         for (Meeting next_meeting : meetings) {
             if (previous_meeting != null

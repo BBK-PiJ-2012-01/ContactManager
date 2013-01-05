@@ -56,7 +56,8 @@ public interface ContactManagerDesired {
      *
      * @param contact one of the user’s contacts.
      * @return the list of future meeting(s) scheduled with this contact (maybe empty).
-     * @throws IllegalArgumentException if the contact does not exist.
+     * @throws IllegalArgumentException if the contact is not known.
+     * @throws NullPointerException if the contact is null.
      */
     List<Meeting> getFutureMeetingList(Contact contact);
 
@@ -82,7 +83,8 @@ public interface ContactManagerDesired {
      *
      * @param contact one of the user’s contacts.
      * @return the list of future meeting(s) scheduled with this contact (maybe empty).
-     * @throws IllegalArgumentException if the contact does not exist.
+     * @throws IllegalArgumentException if the contact is not known.
+     * @throws NullPointerException if the contact is null.
      */
     List<PastMeeting> getPastMeetingList(Contact contact);
 
