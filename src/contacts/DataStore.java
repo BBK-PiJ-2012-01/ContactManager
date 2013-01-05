@@ -1,6 +1,7 @@
 package contacts;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * A class to serialise the data stored in ContactManager to be saved to file,
@@ -12,6 +13,8 @@ public interface DataStore {
      *
      * @param contacts the contacts to add.
      * @throws NullPointerException if contacts (or any of the contacts) is null.
+     * @throws IllegalArgumentException if a contact is added with the same id as
+     *      a previously-added contact, but the contacts are not identical.
      */
     void addContacts(Collection<Contact> contacts);
 
@@ -20,13 +23,15 @@ public interface DataStore {
      *
      * @return contacts.
      */
-    Collection<Contact> getContacts();
+    Set<Contact> getContacts();
 
     /**
      * Adds future meetings to the document that aren't already there.
      *
      * @param meetings the future meetings to add.
      * @throws NullPointerException if meetings (or any of the meetings) is null.
+     * @throws IllegalArgumentException if a meeting is added with the same id as
+     *      a previously-added meeting, but the meetings are not identical.
      */
     void addFutureMeetings(Collection<FutureMeeting> meetings);
 
@@ -35,13 +40,15 @@ public interface DataStore {
      *
      * @return future meetings.
      */
-    Collection<FutureMeeting> getFutureMeetings();
+    Set<FutureMeeting> getFutureMeetings();
 
     /**
      * Adds past meetings to the document that aren't already there.
      *
      * @param meetings the past meetings to add.
      * @throws NullPointerException if meetings (or any of the meetings) is null.
+     * @throws IllegalArgumentException if a meeting is added with the same id as
+     *      a previously-added meeting, but the meetings are not identical.
      */
     void addPastMeetings(Collection<PastMeeting> meetings);
 
@@ -50,7 +57,7 @@ public interface DataStore {
      *
      * @return past meetings.
      */
-    Collection<PastMeeting> getPastMeetings();
+    Set<PastMeeting> getPastMeetings();
 
     /**
      * Writes the document to the given filename.

@@ -1,6 +1,7 @@
 package contacts;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * User: Sam Wright
@@ -14,7 +15,7 @@ public class XmlDataStore implements DataStore {
     }
 
     @Override
-    public Collection<Contact> getContacts() {
+    public Set<Contact> getContacts() {
         return null; // Dummy implementation
     }
 
@@ -24,7 +25,7 @@ public class XmlDataStore implements DataStore {
     }
 
     @Override
-    public Collection<FutureMeeting> getFutureMeetings() {
+    public Set<FutureMeeting> getFutureMeetings() {
         return null; // Dummy implementation
     }
 
@@ -34,7 +35,7 @@ public class XmlDataStore implements DataStore {
     }
 
     @Override
-    public Collection<PastMeeting> getPastMeetings() {
+    public Set<PastMeeting> getPastMeetings() {
         return null; // Dummy implementation
     }
 
