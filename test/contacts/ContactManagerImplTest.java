@@ -22,7 +22,7 @@ public class ContactManagerImplTest {
     private String note = "Note";
     private int meeting_id;
     private Contact alice, bob, charlie, dave;
-    private String filename = "/Users/eatmuchpie/Documents/ContactManagerImplTest.xml";
+    private String filename = "ContactManagerImplTest_output.xml";
 
     @Before
     public void setUp() throws Exception {
@@ -469,10 +469,12 @@ public class ContactManagerImplTest {
         // Create meetings (contacts already added)
         setDateInFuture();
         int future_meeting_id = manager.addFutureMeeting(setOf(alice, bob), date);
+        FutureMeeting expected_future_meeting = manager.getFutureMeeting(future_meeting_id);
 
         setDateToNow();
         int past_meeting_id = manager.addFutureMeeting(setOf(alice, charlie), date);
         manager.addMeetingNotes(past_meeting_id, note);
+        PastMeeting expected_past_meeting = manager.getPastMeeting(past_meeting_id);
 
         // Save to file
         manager.flush();
@@ -484,15 +486,8 @@ public class ContactManagerImplTest {
         FutureMeeting future_meeting = manager.getFutureMeeting(future_meeting_id);
         PastMeeting past_meeting = manager.getPastMeeting(past_meeting_id);
 
-        // Check meeting contacts
-        assertEquals(setOf(alice, bob), future_meeting.getContacts());
-        assertEquals(setOf(alice, charlie), past_meeting.getContacts());
-
-        // Check meeting dates
-        setDateInFuture();
-        assertEquals(date, future_meeting.getDate());
-        setDateToNow();
-        assertEquals(date, past_meeting.getDate());
+        assertEquals(expected_future_meeting, future_meeting);
+        assertEquals(expected_past_meeting, past_meeting);
     }
 
     @Test
@@ -513,11 +508,6 @@ public class ContactManagerImplTest {
         assertEquals(alice, loaded_alice);
         assertEquals(bob, loaded_bob);
         assertEquals(charlie, loaded_charlie);
-
-        // Check users can still be 'got' like before flush
-        testGetContactsByName();
-        testGetContactsBySingleId();
-        testGetContactsByMultipleIds();
     }
 
     @After

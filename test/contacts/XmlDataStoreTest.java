@@ -1,6 +1,5 @@
 package contacts;
 
-import contacts.helper.CalendarHelper;
 import contacts.helper.ContactManagerHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +22,7 @@ public class XmlDataStoreTest {
     private Contact alice, bob, charlie;
     private FutureMeeting fm1, fm2, fm3;
     private PastMeeting pm1, pm2, pm3;
-    private String filename = "/Users/eatmuchpie/Documents/XmlDataStoreTest.xml";
+    private String filename = "XmlDataStoreTest_output.xml";
     private String notes1 = "Notes 1";
     private String notes2 = "Notes 2";
     private String notes3 = "Notes 3";
@@ -117,8 +116,7 @@ public class XmlDataStoreTest {
         testSaveThenLoad();
 
         // Check contacts loaded
-        if (!ContactManagerHelper.areContactsSetsEqual(setOf(alice, bob, charlie), doc.getContacts()))
-            throw new AssertionError("Contact sets not equal");
+        assertTrue(ContactManagerHelper.areContactsSetsEqual(setOf(alice, bob, charlie), doc.getContacts()));
     }
 
     @Test
@@ -129,7 +127,7 @@ public class XmlDataStoreTest {
 
 
         // Check past meetings loaded
-        assertMeetingsSetsEqual(setOf(pm1, pm2, pm3), doc.getPastMeetings());
+        assertTrue(ContactManagerHelper.areMeetingsSetsEqual(setOf(pm1, pm2, pm3), doc.getPastMeetings()));
     }
 
     @Test
@@ -137,51 +135,8 @@ public class XmlDataStoreTest {
         testSaveThenLoad();
 
         // Check future meetings loaded
-        assertMeetingsSetsEqual(setOf(fm1, fm2, fm3), doc.getFutureMeetings());
+        assertTrue(ContactManagerHelper.areMeetingsSetsEqual(setOf(fm1, fm2, fm3), doc.getFutureMeetings()));
     }
-
-    private void assertContactsSetsEqual(Set<Contact> expected, Set<Contact> got) {
-        assertEquals(expected.size(), got.size());
-        for (Contact loaded_contact : got) {
-            // Find the original Contact object the loaded contact should equal
-            Contact saved_contact = null;
-            for (Contact old_contact : expected) {
-                if (old_contact.getId() == loaded_contact.getId()) {
-                    saved_contact = old_contact;
-                    break;
-                }
-            }
-
-            // If no contact matches the saved contact's id, throw exception
-            if (saved_contact == null)
-                throw new RuntimeException("Contact ids did not match!");
-
-            // Check that the loaded and saved contacts are equal
-            assertEquals(saved_contact, loaded_contact);
-        }
-    }
-
-    private <T extends Meeting> void assertMeetingsSetsEqual(Set<T> expected, Set<T> got) {
-        assertEquals(expected.size(), got.size());
-        for (Meeting loaded_meeting : got) {
-            // Find the original meeting object the loaded meeting should equal
-            Meeting saved_meeting = null;
-            for (Meeting old_meeting : expected) {
-                if (old_meeting.getId() == loaded_meeting.getId()) {
-                    saved_meeting = old_meeting;
-                    break;
-                }
-            }
-
-            // If no meeting matches the saved meeting's id, throw exception
-            if (saved_meeting == null)
-                throw new RuntimeException("Meeting ids did not match!");
-
-            // Check that the loaded and saved meetings are equal
-            assertTrue(saved_meeting.equals(loaded_meeting));
-        }
-    }
-
 
     // TODO: test for writeToFilename and loadFromFilename exceptions...
 }

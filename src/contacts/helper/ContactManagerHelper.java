@@ -1,6 +1,7 @@
 package contacts.helper;
 
 import contacts.Contact;
+import contacts.Meeting;
 
 import java.util.Set;
 
@@ -31,6 +32,32 @@ public class ContactManagerHelper {
 
             // Check that the loaded and saved contacts are equal
             if (!expected_contact.equals(got_contact))
+                return false;
+        }
+
+        return true;
+    }
+
+    public static <T extends Meeting> boolean areMeetingsSetsEqual(Set<T> expected, Set<T> got) {
+        if (expected.size() != got.size())
+            return false;
+
+        for (Meeting got_meeting : got) {
+            // Find the original meeting object the got_meeting should equal
+            Meeting expected_meeting = null;
+            for (Meeting old_meeting : expected) {
+                if (old_meeting.getId() == got_meeting.getId()) {
+                    expected_meeting = old_meeting;
+                    break;
+                }
+            }
+
+            // If no meeting matches the saved meeting's id, throw exception
+            if (expected_meeting == null)
+                return false;
+
+            // Check that the loaded and saved meetings are equal
+            if (!expected_meeting.equals(got_meeting))
                 return false;
         }
 
