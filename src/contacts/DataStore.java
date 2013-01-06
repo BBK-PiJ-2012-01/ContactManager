@@ -6,13 +6,16 @@ import java.util.Set;
 /**
  * A class to serialise the data stored in ContactManager to be saved to file,
  * and also deserialise data stored in a file for use in ContactManager.
+ *
+ * Sanity/consistency checks for contacts and meetings are entirely left to
+ * ContactManager.
  */
 public interface DataStore {
     /**
      * Sets the contacts in the data store.
      *
      * @param contacts the contacts to add.
-     * @throws NullPointerException if contacts (or any of the contacts) is null.
+     * @throws NullPointerException if contacts is null.
      */
     void setContacts(Collection<Contact> contacts);
 
@@ -27,7 +30,7 @@ public interface DataStore {
      * Sets the future meetings in the data store
      *
      * @param meetings the future meetings to add.
-     * @throws NullPointerException if meetings (or any of the meetings) is null.
+     * @throws NullPointerException if meetings is null.
      */
     void setFutureMeetings(Collection<FutureMeeting> meetings);
 
@@ -42,7 +45,7 @@ public interface DataStore {
      * Sets the past meetings in the data store
      *
      * @param meetings the past meetings to add.
-     * @throws NullPointerException if meetings (or any of the meetings) is null.
+     * @throws NullPointerException if meetings is null.
      */
     void setPastMeetings(Collection<PastMeeting> meetings);
 

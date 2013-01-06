@@ -22,7 +22,7 @@ public class ContactManagerImplTest {
     private String note = "Note";
     private int meeting_id;
     private Contact alice, bob, charlie, dave;
-    private String filename = "test_contacts.txt";
+    private String filename = "/Users/eatmuchpie/Documents/ContactManagerImplTest.xml";
 
     @Before
     public void setUp() throws Exception {
@@ -472,7 +472,7 @@ public class ContactManagerImplTest {
 
         setDateToNow();
         int past_meeting_id = manager.addFutureMeeting(setOf(alice, charlie), date);
-        manager.addMeetingNotes(meeting_id, note);
+        manager.addMeetingNotes(past_meeting_id, note);
 
         // Save to file
         manager.flush();
@@ -510,20 +510,14 @@ public class ContactManagerImplTest {
         loaded_charlie = (Contact) manager.getContacts(charlie.getId()).toArray()[0];
 
         // Check loaded contacts have same information as previous contacts
-        assertContactsEqual(alice, loaded_alice);
-        assertContactsEqual(bob, loaded_bob);
-        assertContactsEqual(charlie, loaded_charlie);
+        assertEquals(alice, loaded_alice);
+        assertEquals(bob, loaded_bob);
+        assertEquals(charlie, loaded_charlie);
 
         // Check users can still be 'got' like before flush
         testGetContactsByName();
         testGetContactsBySingleId();
         testGetContactsByMultipleIds();
-    }
-
-    private void assertContactsEqual(Contact expected, Contact got) {
-        assertEquals(expected.getId(), got.getId());
-        assertEquals(expected.getNotes(), got.getNotes());
-        assertEquals(expected.getName(), got.getName());
     }
 
     @After

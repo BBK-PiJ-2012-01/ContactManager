@@ -1,5 +1,7 @@
 package contacts;
 
+import contacts.helper.CalendarHelper;
+import contacts.helper.ContactManagerHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +23,7 @@ public class XmlDataStoreTest {
     private Contact alice, bob, charlie;
     private FutureMeeting fm1, fm2, fm3;
     private PastMeeting pm1, pm2, pm3;
-    private String filename = "data_store_TEST.xml";
+    private String filename = "/Users/eatmuchpie/Documents/XmlDataStoreTest.xml";
     private String notes1 = "Notes 1";
     private String notes2 = "Notes 2";
     private String notes3 = "Notes 3";
@@ -73,12 +75,6 @@ public class XmlDataStoreTest {
         doc.setContacts(null);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testSetNullContact() throws Exception {
-        Contact null_contact = null;
-        doc.setContacts(setOf(null_contact));
-    }
-
     @Test
     public void testSetFutureMeetings() throws Exception {
         doc.setFutureMeetings(setOf(fm1, fm2, fm3));
@@ -88,12 +84,6 @@ public class XmlDataStoreTest {
     @Test(expected = NullPointerException.class)
     public void testSetNullFutureMeetings() throws Exception {
         doc.setFutureMeetings(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testSetNullFutureMeeting() throws Exception {
-        FutureMeeting null_meeting = null;
-        doc.setFutureMeetings(setOf(null_meeting));
     }
 
     @Test
@@ -107,14 +97,8 @@ public class XmlDataStoreTest {
         doc.setPastMeetings(null);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testSetNullPastMeeting() throws Exception {
-        PastMeeting null_meeting = null;
-        doc.setPastMeetings(setOf(null_meeting));
-    }
-
     @Test
-    public void testWriteToFilename() throws Exception {
+    public void testSaveThenLoad() throws Exception {
         // Add data to doc
         testSetContacts();
         testSetFutureMeetings();
@@ -126,15 +110,34 @@ public class XmlDataStoreTest {
         // Recreate doc and load from filename
         doc = new XmlDataStore();
         doc.loadFromFilename(filename);
+    }
+
+    @Test
+    public void testReloadContacts() throws Exception {
+        testSaveThenLoad();
 
         // Check contacts loaded
-        assertContactsSetsEqual(setOf(alice, bob, charlie), doc.getContacts());
+        if (!ContactManagerHelper.areContactsSetsEqual(setOf(alice, bob, charlie), doc.getContacts()))
+            throw new AssertionError("Contact sets not equal");
+    }
 
-        // Check future meetings loaded
-        assertMeetingsSetsEqual(setOf(fm1, fm2, fm3), doc.getFutureMeetings());
+    @Test
+    public void testReloadPastMeetings() throws Exception {
+        testSaveThenLoad();
+
+        // Need to load contacts to see if meeting attendees loaded correctly
+
 
         // Check past meetings loaded
         assertMeetingsSetsEqual(setOf(pm1, pm2, pm3), doc.getPastMeetings());
+    }
+
+    @Test
+    public void testReloadFutureMeetings() throws Exception {
+        testSaveThenLoad();
+
+        // Check future meetings loaded
+        assertMeetingsSetsEqual(setOf(fm1, fm2, fm3), doc.getFutureMeetings());
     }
 
     private void assertContactsSetsEqual(Set<Contact> expected, Set<Contact> got) {
@@ -154,17 +157,12 @@ public class XmlDataStoreTest {
                 throw new RuntimeException("Contact ids did not match!");
 
             // Check that the loaded and saved contacts are equal
-            assertContactsEqual(saved_contact, loaded_contact);
+            assertEquals(saved_contact, loaded_contact);
         }
     }
 
-    private void assertContactsEqual(Contact expected, Contact got) {
-        assertEquals(expected.getId(), got.getId());
-        assertEquals(expected.getName(), got.getName());
-        assertEquals(expected.getNotes(), got.getNotes());
-    }
-
     private <T extends Meeting> void assertMeetingsSetsEqual(Set<T> expected, Set<T> got) {
+        assertEquals(expected.size(), got.size());
         for (Meeting loaded_meeting : got) {
             // Find the original meeting object the loaded meeting should equal
             Meeting saved_meeting = null;
@@ -180,27 +178,10 @@ public class XmlDataStoreTest {
                 throw new RuntimeException("Meeting ids did not match!");
 
             // Check that the loaded and saved meetings are equal
-            assertMeetingsEqual(saved_meeting, loaded_meeting);
+            assertTrue(saved_meeting.equals(loaded_meeting));
         }
     }
 
-    private void assertMeetingsEqual(Meeting expected, Meeting got) {
-        assertEquals(expected.getContacts(), got.getContacts());
-        assertContactsSetsEqual(expected.getContacts(), got.getContacts());
-        assertDatesAlmostEqual(expected.getDate(), got.getDate());
-
-        // If meetings are past meetings, check their notes are equal
-        if (expected instanceof PastMeeting && got instanceof PastMeeting) {
-            String expected_notes = ((PastMeeting) expected).getNotes();
-            String got_notes = ((PastMeeting) got).getNotes();
-            assertEquals(expected_notes, got_notes);
-        }
-    }
-
-    private void assertDatesAlmostEqual(Calendar expected, Calendar got) {
-        int difference = expected.compareTo(got);
-        assertTrue(Math.abs(difference) < 1000);
-    }
 
     // TODO: test for writeToFilename and loadFromFilename exceptions...
 }

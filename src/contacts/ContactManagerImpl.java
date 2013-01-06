@@ -1,8 +1,8 @@
 package contacts;
 
-import sun.text.resources.CollationData_el;
+import contacts.helper.CalendarHelper;
 
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -20,11 +20,71 @@ public class ContactManagerImpl implements ContactManager {
 
     public ContactManagerImpl(String filename) {
         this.filename = filename;
-        loadFromFile();
+
+        if (new File(filename).isFile())
+            loadFromFile();
     }
 
     private void loadFromFile() {
+        DataStore data = new XmlDataStore();
+        data.loadFromFilename(filename);
 
+        // Load contacts
+        for (Contact contact : data.getContacts()) {
+            known_contacts.put(contact.getId(), contact);
+        }
+
+        if (!known_contacts.isEmpty())
+            last_contact_id = Math.max(last_contact_id, Collections.max(known_contacts.keySet()));
+
+
+        // Load past meetings
+        for (PastMeeting meeting : data.getPastMeetings()) {
+            // Ensure date is in past (inclusive of today)
+            if (!CalendarHelper.isDateInPast(meeting.getDate())) {
+                System.out.format("Coudln't load from file '%s'.  Past meeting %d is set in the future.",
+                        filename, meeting.getId());
+                continue;
+            }
+
+            try {
+                // Ensure contacts are known
+                ensureContactsAreKnown(meeting.getContacts());
+            } catch (IllegalArgumentException err) {
+                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.",
+                        filename, meeting.getId());
+                continue;
+            }
+
+            past_meetings.put(meeting.getId(), meeting);
+        }
+
+        // Load future meetings
+        for (FutureMeeting meeting : data.getFutureMeetings()) {
+            // Ensure date is in future (inclusive of today)
+            if (!CalendarHelper.isDateInFuture(meeting.getDate())) {
+                System.out.format("Coudln't load from file '%s'.  Future meeting %d is set in the past.",
+                        filename, meeting.getId());
+                continue;
+            }
+
+            try {
+                // Ensure contacts are known
+                ensureContactsAreKnown(meeting.getContacts());
+            } catch (IllegalArgumentException err) {
+                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.",
+                        filename, meeting.getId());
+                continue;
+            }
+
+            future_meetings.put(meeting.getId(), meeting);
+        }
+
+        if (!past_meetings.isEmpty())
+            last_contact_id = Math.max(last_contact_id, Collections.max(past_meetings.keySet()));
+
+        if (!future_meetings.isEmpty())
+            last_contact_id = Math.max(last_contact_id, Collections.max(future_meetings.keySet()));
     }
 
     private void ensureContactsAreKnown(Set<Contact> contacts) {
@@ -51,18 +111,14 @@ public class ContactManagerImpl implements ContactManager {
             throw new IllegalArgumentException("contact '" + contact.getName() + "' does is not known");
     }
 
-    private String getSimpleCalendarString(Calendar date) {
-        SimpleDateFormat uk_date_format = new SimpleDateFormat("dd/MM/yyyy");
-        return uk_date_format.format(date.getTime());
-    }
-
     @Override
     public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
         if (date == null)
             throw new NullPointerException("date is null");
 
         // Ensure date is in future (inclusive of today)
-        checkDateInFuture(date);
+        if (!CalendarHelper.isDateInFuture(date))
+            throw new IllegalArgumentException("Date " + CalendarHelper.getSimpleCalendarString(date) + " is in the past");
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -71,24 +127,6 @@ public class ContactManagerImpl implements ContactManager {
         int id = ++last_meeting_id;
         future_meetings.put(id, new FutureMeetingImpl(id, date, new HashSet<Contact>(contacts)));
         return id;
-    }
-
-    private void checkDateInFuture(Calendar date) {
-        Calendar start_of_today = Calendar.getInstance();
-        start_of_today.set(Calendar.HOUR_OF_DAY, 0);
-        start_of_today.set(Calendar.MINUTE, 0);
-        start_of_today.set(Calendar.SECOND, 0);
-        if (date.before(start_of_today) && !date.equals(start_of_today))
-            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the past - now is " + getSimpleCalendarString(start_of_today));
-    }
-
-    private void checkDateInPast(Calendar date) {
-        Calendar end_of_today = Calendar.getInstance();
-        end_of_today.set(Calendar.HOUR_OF_DAY, 23);
-        end_of_today.set(Calendar.MINUTE, 59);
-        end_of_today.set(Calendar.SECOND, 59);
-        if (date.after(end_of_today))
-            throw new IllegalArgumentException("Date " + getSimpleCalendarString(date) + " is in the past - now is " + getSimpleCalendarString(end_of_today));
     }
 
     @Override
@@ -216,8 +254,9 @@ public class ContactManagerImpl implements ContactManager {
         if (text == null)
             throw new NullPointerException("text is null");
 
-        // Ensure date is in future (inclusive of today)
-        checkDateInPast(date);
+        // Ensure date is in past (inclusive of today)
+        if (!CalendarHelper.isDateInPast(date))
+            throw new IllegalArgumentException("Date " + CalendarHelper.getSimpleCalendarString(date) + " is in the future");
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -229,11 +268,8 @@ public class ContactManagerImpl implements ContactManager {
 
     private void addExistingMeetingToPast(Meeting meeting, String text) {
         // Check meeting is in the past (inclusive of today)
-        try {
-            checkDateInPast(meeting.getDate());
-        } catch (IllegalArgumentException err) {
-            throw new IllegalStateException(err);
-        }
+        if (!CalendarHelper.isDateInPast(meeting.getDate()))
+            throw new IllegalStateException("Date " + CalendarHelper.getSimpleCalendarString(meeting.getDate()) + " is in the future");
 
         // Recreate as past meeting
         PastMeeting new_meeting = new PastMeetingImpl(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);
@@ -266,7 +302,7 @@ public class ContactManagerImpl implements ContactManager {
             // If it succeeds, it will overwrite the previous 'meeting' object in the past_meetings map.
             addExistingMeetingToPast(meeting, total_notes);
         } else {
-            throw new IllegalArgumentException("Meeting Id " + id + "does not exist");
+            throw new IllegalArgumentException("Meeting Id " + id + " does not exist");
         }
     }
 
@@ -321,6 +357,14 @@ public class ContactManagerImpl implements ContactManager {
 
     @Override
     public void flush() {
-        // Dummy implementation
+        DataStore data = new XmlDataStore();
+
+        // Put data in data store
+        data.setContacts(known_contacts.values());
+        data.setFutureMeetings(future_meetings.values());
+        data.setPastMeetings(past_meetings.values());
+
+        // Save data store to file
+        data.writeToFilename(filename);
     }
 }

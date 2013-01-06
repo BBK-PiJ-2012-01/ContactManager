@@ -38,4 +38,21 @@ public class ContactImpl implements Contact {
             notes = notes + '\n' + note.trim();
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Contact) {
+            Contact other = (Contact) obj;
+            if (other.getId() != id)
+                return false;
+            if (!other.getNotes().equals(notes))
+                return false;
+            if (!other.getName().equals(name))
+                return false;
+
+            return true;
+        }
+
+        return false;
+    }
 }
