@@ -49,13 +49,14 @@ public class AbstractMeetingTest {
 
         // Change the original date object passed on initialisation
         // to Meeting
-        date.set(2000, 1, 1);
+        date.set(2000, Calendar.JANUARY, 1);
         assertFalse(original_date.equals(date));
         assertEquals(original_date, m.getDate());
     }
 
+    @Test
     public void testGetDateImmutability() throws Exception {
-        m.getDate().set(2000, 1, 1);
+        m.getDate().set(2000, Calendar.JANUARY, 1);
         assertEquals(date, m.getDate());
     }
 

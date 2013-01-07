@@ -48,7 +48,7 @@ abstract public class AbstractMeeting implements Meeting {
                 return false;
 
             // Check calendar dates are (almost) equal
-            if (!CalendarHelper.areDatesAlmostEqual(getDate(), other.getDate()))
+            if (!CalendarHelper.areDatesEqual(getDate(), other.getDate()))
                 return false;
 
             // If meetings are past meetings, check their notes are equal

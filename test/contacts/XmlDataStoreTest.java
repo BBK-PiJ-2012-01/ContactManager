@@ -139,4 +139,5 @@ public class XmlDataStoreTest {
     }
 
     // TODO: test for writeToFilename and loadFromFilename exceptions...
+    // TODO: test for XML injection safety (eg. alice changes her name to "Al<ice").
 }
