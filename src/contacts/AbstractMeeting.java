@@ -1,7 +1,6 @@
 package contacts;
 
 import contacts.helper.CalendarHelper;
-import contacts.helper.ContactManagerHelper;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -15,11 +14,13 @@ import java.util.Set;
 abstract public class AbstractMeeting implements Meeting {
     private final int id;
     private final Calendar date;
+    private final String date_str;
     private final Set<Contact> contacts;
 
     public AbstractMeeting(int id, Calendar date, Set<Contact> contacts) {
         this.id = id;
         this.date = (Calendar) date.clone();
+        this.date_str = CalendarHelper.getSimpleCalendarString(date);
         this.contacts = new HashSet<Contact>(contacts);
     }
 
@@ -39,29 +40,24 @@ abstract public class AbstractMeeting implements Meeting {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof AbstractMeeting) {
-            Meeting other = (Meeting) obj;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractMeeting)) return false;
 
-            // Check contact sets are equal
-            if (!ContactManagerHelper.areContactsSetsEqual(this.getContacts(), other.getContacts()))
-                return false;
+        AbstractMeeting that = (AbstractMeeting) o;
 
-            // Check calendar dates are (almost) equal
-            if (!CalendarHelper.areDatesEqual(getDate(), other.getDate()))
-                return false;
+        if (id != that.id) return false;
+        if (!contacts.equals(that.contacts)) return false;
+        if (!date_str.equals(that.date_str)) return false;
 
-            // If meetings are past meetings, check their notes are equal
-            if (this instanceof PastMeeting && other instanceof PastMeeting) {
-                String expected_notes = ((PastMeeting) this).getNotes();
-                String got_notes = ((PastMeeting) other).getNotes();
+        return true;
+    }
 
-                if (!expected_notes.equals(got_notes))
-                    return false;
-            }
-
-            return true;
-        }
-        return false;
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + date_str.hashCode();
+        result = 31 * result + contacts.hashCode();
+        return result;
     }
 }

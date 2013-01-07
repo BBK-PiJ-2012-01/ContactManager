@@ -80,4 +80,18 @@ public class AbstractMeetingTest {
 
         assertEquals(original_contacts, m.getContacts());
     }
+
+    @Test
+    public void testEquals() throws Exception {
+        Meeting m_copy = new AbstractMeeting(3, date, new HashSet<Contact>(contacts)) {};
+
+        assertEquals(m, m_copy);
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        Meeting m_copy = new AbstractMeeting(3, date, new HashSet<Contact>(contacts)) {};
+
+        assertEquals(m.hashCode(), m_copy.hashCode());
+    }
 }

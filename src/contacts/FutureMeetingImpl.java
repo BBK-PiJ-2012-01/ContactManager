@@ -13,4 +13,5 @@ public class FutureMeetingImpl extends AbstractMeeting implements FutureMeeting 
     public FutureMeetingImpl(int id, Calendar date, Set<Contact> contacts) {
         super(id, date, contacts);
     }
+
 }

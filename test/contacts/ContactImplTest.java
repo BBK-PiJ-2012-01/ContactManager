@@ -66,4 +66,18 @@ public class ContactImplTest {
         c.addNotes("\n " + note2 + " \n ");
         assertEquals(note1 + "\n" + note2, c.getNotes());
     }
+
+    @Test
+    public void testEquals() throws Exception {
+        Contact c_copy = new ContactImpl(4, "Bob");
+
+        assertTrue(c.equals(c_copy));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        Contact c_copy = new ContactImpl(id, name);
+
+        assertEquals(c.hashCode(), c_copy.hashCode());
+    }
 }

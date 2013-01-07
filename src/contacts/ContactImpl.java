@@ -40,19 +40,24 @@ public class ContactImpl implements Contact {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Contact) {
-            Contact other = (Contact) obj;
-            if (other.getId() != id)
-                return false;
-            if (!other.getNotes().equals(notes))
-                return false;
-            if (!other.getName().equals(name))
-                return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-            return true;
-        }
+        ContactImpl contact = (ContactImpl) o;
 
-        return false;
+        if (id != contact.id) return false;
+        if (!name.equals(contact.name)) return false;
+        if (!notes.equals(contact.notes)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + notes.hashCode();
+        return result;
     }
 }

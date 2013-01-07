@@ -1,15 +1,12 @@
 package contacts;
 
-import contacts.helper.ContactManagerHelper;
 import org.junit.Before;
 import org.junit.Test;
 
+import static contacts.helper.SetHelper.setOf;
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -57,10 +54,6 @@ public class XmlDataStoreTest {
         Calendar date = Calendar.getInstance();
         date.set(1953, Calendar.JANUARY, seed);
         return date;
-    }
-
-    private static <T> Set<T> setOf(T... contents) {
-        return new HashSet<T>(Arrays.asList(contents));
     }
 
     @Test
@@ -116,7 +109,7 @@ public class XmlDataStoreTest {
         testSaveThenLoad();
 
         // Check contacts loaded
-        assertTrue(ContactManagerHelper.areContactsSetsEqual(setOf(alice, bob, charlie), doc.getContacts()));
+        assertEquals(setOf(alice, bob, charlie), doc.getContacts());
     }
 
     @Test
@@ -127,7 +120,9 @@ public class XmlDataStoreTest {
 
 
         // Check past meetings loaded
-        assertTrue(ContactManagerHelper.areMeetingsSetsEqual(setOf(pm1, pm2, pm3), doc.getPastMeetings()));
+        assertEquals(setOf(pm1, pm2, pm3), doc.getPastMeetings());
+        assertEquals(setOf(pm1, pm2, pm3), doc.getPastMeetings());
+
     }
 
     @Test
@@ -135,9 +130,14 @@ public class XmlDataStoreTest {
         testSaveThenLoad();
 
         // Check future meetings loaded
-        assertTrue(ContactManagerHelper.areMeetingsSetsEqual(setOf(fm1, fm2, fm3), doc.getFutureMeetings()));
+        assertEquals(setOf(fm1, fm2, fm3), doc.getFutureMeetings());
     }
 
     // TODO: test for writeToFilename and loadFromFilename exceptions...
     // TODO: test for XML injection safety (eg. alice changes her name to "Al<ice").
+
+    @Test
+    public void testSetTechnique() throws Exception {
+        assertTrue(setOf(pm1, pm2, pm3).containsAll(doc.getPastMeetings()));
+    }
 }

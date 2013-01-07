@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static contacts.helper.SetHelper.setOf;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -72,10 +73,6 @@ public class ContactManagerImplTest {
      */
     private void setDateToNow() {
         date = Calendar.getInstance();
-    }
-
-    private static <T> Set<T> setOf(T... contents) {
-        return new HashSet<T>(Arrays.asList(contents));
     }
 
     private void checkMeetingsList(Set<Integer> expected_ids, List<? extends Meeting> meetings) throws Exception {
@@ -485,6 +482,9 @@ public class ContactManagerImplTest {
         // Get flushed meetings
         FutureMeeting future_meeting = manager.getFutureMeeting(future_meeting_id);
         PastMeeting past_meeting = manager.getPastMeeting(past_meeting_id);
+
+        System.out.println("debug start...");
+        assertTrue(future_meeting.equals(expected_future_meeting));
 
         assertEquals(expected_future_meeting, future_meeting);
         assertEquals(expected_past_meeting, past_meeting);

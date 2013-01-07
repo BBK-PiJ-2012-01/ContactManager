@@ -3,6 +3,7 @@ package contacts.helper;
 import org.junit.Before;
 import org.junit.Test;
 
+import static contacts.helper.CalendarHelper.*;
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
@@ -28,43 +29,43 @@ public class CalendarHelperTest {
 
     @Test
     public void testIsFutureInFuture() throws Exception {
-        assertTrue(CalendarHelper.isDateInFuture(future));
+        assertTrue(isDateInFuture(future));
     }
 
     @Test
     public void testIsPresentInFuture() throws Exception {
-        assertTrue(CalendarHelper.isDateInFuture(present));
+        assertTrue(isDateInFuture(present));
     }
 
     @Test
     public void testIsPastInFuture() throws Exception {
-        assertFalse(CalendarHelper.isDateInFuture(past));
+        assertFalse(isDateInFuture(past));
     }
 
     @Test
     public void testIsFutureInPast() throws Exception {
-        assertFalse(CalendarHelper.isDateInPast(future));
+        assertFalse(isDateInPast(future));
     }
 
     @Test
     public void testIsPresentInPast() throws Exception {
-        assertTrue(CalendarHelper.isDateInPast(present));
+        assertTrue(isDateInPast(present));
     }
 
     @Test
     public void testIsPastInPast() throws Exception {
-        assertTrue(CalendarHelper.isDateInPast(past));
+        assertTrue(isDateInPast(past));
     }
 
     @Test
     public void testGetSimpleCalendarString() throws Exception {
-        assertEquals("13/01/1956", CalendarHelper.getSimpleCalendarString(past));
-        assertEquals("06/02/2083", CalendarHelper.getSimpleCalendarString(future));
+        assertEquals("13/01/1956", getSimpleCalendarString(past));
+        assertEquals("06/02/2083", getSimpleCalendarString(future));
     }
 
     @Test
     public void testGetCalendarFromString() throws Exception {
-        Calendar extracted = CalendarHelper.getCalendarFromString("13/01/1956");
+        Calendar extracted = getCalendarFromString("13/01/1956");
         assertEquals(1956, extracted.get(Calendar.YEAR));
         assertEquals(Calendar.JANUARY, extracted.get(Calendar.MONTH));
         assertEquals(13, extracted.get(Calendar.DAY_OF_MONTH));
@@ -72,13 +73,13 @@ public class CalendarHelperTest {
 
     @Test
     public void testAreDatesEqual() throws Exception {
-        Calendar extracted = CalendarHelper.getCalendarFromString("13/01/1956");
-        assertTrue(CalendarHelper.areDatesEqual(past, extracted));
+        Calendar extracted = getCalendarFromString("13/01/1956");
+        assertTrue(areDatesEqual(past, extracted));
     }
 
     @Test
     public void testAreDatesInequal() throws Exception {
-        Calendar extracted = CalendarHelper.getCalendarFromString("13/01/1956");
-        assertFalse(CalendarHelper.areDatesEqual(future, extracted));
+        Calendar extracted = getCalendarFromString("13/01/1956");
+        assertFalse(areDatesEqual(future, extracted));
     }
 }
