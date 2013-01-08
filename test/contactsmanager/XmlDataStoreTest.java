@@ -1,5 +1,6 @@
 package contactsmanager;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -219,5 +220,12 @@ public class XmlDataStoreTest {
         doc.loadFromFilename(xml_file_dir + "this_file_doesnt_exist.xml");
     }
 
+    @After
+    public void cleanUp() {
+        File file = new File(filename);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
 
 }
