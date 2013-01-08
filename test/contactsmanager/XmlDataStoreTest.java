@@ -134,7 +134,39 @@ public class XmlDataStoreTest {
     }
 
     // TODO: test for writeToFilename and loadFromFilename exceptions...
-    // TODO: test for XML injection safety (eg. alice changes her name to "Al<ice").
+
+    @Test
+    public void testXmlInjectionSafety() throws Exception {
+        String xml_injection_str = "Jane/>&\"\\\"";
+        Contact xml_jane = new ContactImpl(5, xml_injection_str);
+        xml_jane.addNotes("notes");
+
+        doc.setContacts(setOf(xml_jane));
+
+        doc.writeToFilename(filename);
+        doc = new XmlDataStore();
+        doc.loadFromFilename(filename);
+
+        Contact loaded_xml_jane = (Contact) doc.getContacts().toArray()[0];
+
+        assertEquals(xml_jane, loaded_xml_jane);
+    }
+
+    @Test
+    public void testEmptyStringSaving() throws Exception {
+        Contact nemo = new ContactImpl(5, "");
+
+        doc.setContacts(setOf(nemo));
+
+        doc.writeToFilename(filename);
+        doc = new XmlDataStore();
+        doc.loadFromFilename(filename);
+
+        Contact loaded_nemo = (Contact) doc.getContacts().toArray()[0];
+
+        assertEquals(nemo, loaded_nemo);
+    }
+
 
     @Test
     public void testSetTechnique() throws Exception {

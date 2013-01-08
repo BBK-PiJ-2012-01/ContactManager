@@ -182,16 +182,25 @@ public class XmlDataStore implements DataStore {
      * @param data_tag the name for the data type.
      * @param node the node to retrieve the data from.
      * @return the data in the node with the given data_tag.
+     * @throws NullPointerException if the data_tag was not found under the given node.
      */
     private String getDataUnderNode(String data_tag, Node node) {
         // Get relevant data_tag node
         Node data_tag_node = ((Element) node).getElementsByTagName(data_tag).item(0);
 
+
         // Get data value node
         Node data_node = data_tag_node.getFirstChild();
 
-        // Return value of node
-        return data_node.getNodeValue();
+        if (data_node == null) {
+            // If there is no data under the data_tag (but the data_tag exists, eg.
+            // "<name/>") then return empty string.
+            return "";
+        } else {
+            // Return value of node
+            return data_node.getNodeValue();
+        }
+
     }
 
     /**
