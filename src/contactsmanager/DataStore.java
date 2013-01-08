@@ -1,7 +1,6 @@
 package contactsmanager;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -64,7 +63,7 @@ public interface DataStore {
      * @param filename the name of the file to be (over)written to.
      * @throws IOException if file cannot be written.
      */
-    void writeToFilename(String filename);
+    void writeToFilename(String filename) throws IOException;
 
     /**
      * Reads data from the file at the given filename.

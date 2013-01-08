@@ -6,6 +6,8 @@ import org.junit.Test;
 import static contactsmanager.helper.SetHelper.setOf;
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 
 
@@ -23,10 +25,14 @@ public class XmlDataStoreTest {
     private String notes1 = "Notes 1";
     private String notes2 = "Notes 2";
     private String notes3 = "Notes 3";
+    private String xml_file_dir = "test" + File.separator +
+                                    "contactsmanager" + File.separator +
+                                    "xml_test_files" + File.separator;
 
     @Before
     public void setUp() throws Exception {
         doc = new XmlDataStore();
+
         alice = new ContactImpl(1, "Alice");
         bob = new ContactImpl(2, "Bob");
         charlie = new ContactImpl(3, "Charlie");
@@ -135,6 +141,11 @@ public class XmlDataStoreTest {
 
     // TODO: test for writeToFilename and loadFromFilename exceptions...
 
+    @Test(expected = IOException.class)
+    public void testWriteToBadFilename() throws Exception {
+        doc.writeToFilename(xml_file_dir + "\\/\\filename");
+    }
+
     @Test
     public void testXmlInjectionSafety() throws Exception {
         String xml_injection_str = "Jane/>&\"\\\"";
@@ -172,4 +183,41 @@ public class XmlDataStoreTest {
     public void testSetTechnique() throws Exception {
         assertTrue(setOf(pm1, pm2, pm3).containsAll(doc.getPastMeetings()));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoadMalformedDate() throws Exception {
+        doc.loadFromFilename(xml_file_dir + "malformed_date.xml");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoadMalformedId() throws Exception {
+        doc.loadFromFilename(xml_file_dir + "malformed_id.xml");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoadMalformedString() throws Exception {
+        doc.loadFromFilename(xml_file_dir + "malformed_string.xml");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoadContactWithTooManyNames() throws Exception {
+        doc.loadFromFilename(xml_file_dir + "too_many_names.xml");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoadMalformedTag() throws Exception {
+        doc.loadFromFilename(xml_file_dir + "malformed_tag.xml");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoadWrongTag() throws Exception {
+        doc.loadFromFilename(xml_file_dir + "wrong_tag.xml");
+    }
+
+    @Test(expected = IOException.class)
+    public void testLoadFromBadFile() throws Exception {
+        doc.loadFromFilename(xml_file_dir + "this_file_doesnt_exist.xml");
+    }
+
+
 }

@@ -4,6 +4,7 @@ import contactsmanager.helper.CalendarHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -76,7 +77,7 @@ public class XmlDataStore implements DataStore {
     }
 
     @Override
-    public void writeToFilename(String filename) {
+    public void writeToFilename(String filename) throws IOException {
         try {
             // Create a new document
             resetDocument();
@@ -94,7 +95,7 @@ public class XmlDataStore implements DataStore {
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (TransformerException e) {
-            e.printStackTrace();
+            throw new IOException("Xml file could not be written to " + filename, e);
         }
     }
 
@@ -182,12 +183,23 @@ public class XmlDataStore implements DataStore {
      * @param data_tag the name for the data type.
      * @param node the node to retrieve the data from.
      * @return the data in the node with the given data_tag.
-     * @throws NullPointerException if the data_tag was not found under the given node.
+     * @throws ParserConfigurationException if the data_tag was not found under the given node.
      */
-    private String getDataUnderNode(String data_tag, Node node) {
-        // Get relevant data_tag node
-        Node data_tag_node = ((Element) node).getElementsByTagName(data_tag).item(0);
+    private String getDataUnderNode(String data_tag, Node node) throws ParserConfigurationException {
+        // Get list of nodes with data_tag
+        NodeList node_list = ((Element) node).getElementsByTagName(data_tag);
 
+        if (node_list.getLength() == 0) {
+            // if the data_tag wasn't found under the given node
+            throw new ParserConfigurationException("Data tag " + data_tag + " wasn't found under " + node.getNodeValue());
+        } else if (node_list.getLength() > 1) {
+            // if too many matches for data_tag are found
+            throw new ParserConfigurationException("Too many elements with data tag " + data_tag +
+                    " were found under " + node.getNodeValue());
+        }
+
+        // Get relevant data_tag node
+        Node data_tag_node = node_list.item(0);
 
         // Get data value node
         Node data_node = data_tag_node.getFirstChild();
@@ -197,20 +209,24 @@ public class XmlDataStore implements DataStore {
             // "<name/>") then return empty string.
             return "";
         } else {
+            if (data_node.getNextSibling() != null) {
+                // If too many data values are found under the data_tag node
+                throw new ParserConfigurationException("Too many data elements were found under data tag " + data_tag);
+            }
+
             // Return value of node
             return data_node.getNodeValue();
         }
-
     }
 
     /**
      * Adds the given id to the given element as an attribute.
-     * <p/>
+     *
      * For example, if element represents a contact ("<contact></contact>")
      * then with id = 5, this method changes element to "<contact id="5"></contact>"
      *
-     * @param id
-     * @param element
+     * @param id the id to add as an attribute.
+     * @param element the element to add the id attribute to.
      */
     private void addIdToElement(int id, Element element) {
         element.setAttribute("id", String.valueOf(id));
@@ -347,11 +363,11 @@ public class XmlDataStore implements DataStore {
 
 
         } catch (ParserConfigurationException e) {
-            throw new IllegalArgumentException("File could not be parsed", e);
+            throw new IllegalArgumentException("Xml file could not be parsed", e);
         } catch (SAXException e) {
-            throw new IllegalArgumentException("File could not be parsed", e);
+            throw new IllegalArgumentException("Xml file could not be parsed", e);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("File could not be parsed", e);
+            throw new IllegalArgumentException("Calendar date could not be parsed", e);
         }
     }
 
@@ -385,9 +401,10 @@ public class XmlDataStore implements DataStore {
     /**
      * Loads future meetings from the loaded xml file.
      *
-     * @throws ParseException if the xml couldn't be parsed.
+     * @throws ParseException if the calendar date couldn't be parsed.
+     * @throws ParserConfigurationException if the xml couldn't be parsed.
      */
-    private void loadFutureMeetings() throws ParseException {
+    private void loadFutureMeetings() throws ParserConfigurationException, ParseException {
         Node top_level_meetings_node = doc.getElementsByTagName("FutureMeetings").item(0);
 
         // For each meeting under top_level_meetings_node...
@@ -412,9 +429,10 @@ public class XmlDataStore implements DataStore {
     /**
      * Loads past meetings from the loaded xml file.
      *
-     * @throws ParseException if the xml couldn't be parsed.
+     * @throws ParseException if the calendar date couldn't be parsed.
+     * @throws ParserConfigurationException if the xml couldn't be parsed.
      */
-    private void loadPastMeetings() throws ParseException {
+    private void loadPastMeetings() throws ParseException, ParserConfigurationException {
         Node top_level_meetings_node = doc.getElementsByTagName("PastMeetings").item(0);
 
         // For each meeting under top_level_meetings_node...
@@ -440,9 +458,9 @@ public class XmlDataStore implements DataStore {
     /**
      * Loads contacts from the loaded xml file.
      *
-     * @throws ParseException if the xml couldn't be parsed.
+     * @throws ParserConfigurationException if the xml couldn't be parsed.
      */
-    private void loadContacts() {
+    private void loadContacts() throws ParserConfigurationException {
         Node top_level_contacts_node = doc.getElementsByTagName("Contacts").item(0);
 
         // For each contact_node under top_level_contacts_node...

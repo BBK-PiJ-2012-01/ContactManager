@@ -388,6 +388,10 @@ public class ContactManagerImpl implements ContactManager {
         data.setPastMeetings(past_meetings.values());
 
         // Save data store to file
-        data.writeToFilename(filename);
+        try {
+            data.writeToFilename(filename);
+        } catch (IOException e) {
+            System.out.println("Error! Couldn't write to filename: " + filename);
+        }
     }
 }
