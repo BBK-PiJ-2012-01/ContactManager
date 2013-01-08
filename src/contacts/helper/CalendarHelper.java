@@ -88,9 +88,7 @@ public class CalendarHelper {
      * @return Whether the Calendar objects fall on the same calendar date.
      */
     public static boolean areDatesEqual(Calendar first, Calendar second) {
-        if (first.get(Calendar.YEAR) == second.get(Calendar.YEAR)
-                && first.get(Calendar.MONTH) == second.get(Calendar.MONTH)
-                && first.get(Calendar.DAY_OF_MONTH) == second.get(Calendar.DAY_OF_MONTH)) {
+        if (getSimpleCalendarString(first).equals(getSimpleCalendarString(second))) {
             return true;
         } else {
             return false;
