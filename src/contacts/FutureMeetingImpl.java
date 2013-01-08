@@ -4,9 +4,8 @@ import java.util.Calendar;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 16:46
+ * An implementation of AbstractMeeting.  No functionality is added, this is simply
+ * a non-abstract verion of AbstractMeeting.
  */
 public class FutureMeetingImpl extends AbstractMeeting implements FutureMeeting {
 

@@ -6,9 +6,7 @@ import java.io.File;
 import java.util.*;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 16:45
+ * An implementation of ContactManager.
  */
 public class ContactManagerImpl implements ContactManager {
     private final String filename;
@@ -25,6 +23,9 @@ public class ContactManagerImpl implements ContactManager {
             loadFromFile();
     }
 
+    /**
+     * Loads 'known_contacts', 'past_meetings', and 'future_meetings' from the xml file at 'filename'.
+     */
     private void loadFromFile() {
         DataStore data = new XmlDataStore();
         data.loadFromFilename(filename);
@@ -87,6 +88,14 @@ public class ContactManagerImpl implements ContactManager {
             last_contact_id = Math.max(last_contact_id, Collections.max(future_meetings.keySet()));
     }
 
+    /**
+     * Checks the given contacts set is not null or empty, and contains only
+     * known contacts.
+     *
+     * @param contacts the set of contacts to check.
+     * @throws NullPointerException if contacts is null.
+     * @throws IllegalArgumentException if contacts is empty or contains unknown contacts.
+     */
     private void ensureContactsAreKnown(Set<Contact> contacts) {
         if (contacts == null)
             throw new NullPointerException("contacts is null");
@@ -102,6 +111,13 @@ public class ContactManagerImpl implements ContactManager {
             throw new IllegalArgumentException("Unknown contacts in meeting: " + unknown_contacts);
     }
 
+    /**
+     * Checks that the given contact is not null and is known.
+     *
+     * @param contact the contact to check.
+     * @throws NullPointerException if the contact is null.
+     * @throws IllegalArgumentException if the contact is not known.
+     */
     private void ensureContactIsKnown(Contact contact) {
         // Check that contact is not null
         if (contact == null)
@@ -162,12 +178,21 @@ public class ContactManagerImpl implements ContactManager {
         }
     }
 
+    /**
+     * Returns
+     * @param from_meetings_list
+     * @param <T>
+     * @return
+     */
     private <T extends Meeting> List<T> getSortedMeetingList(List<T> from_meetings_list) {
         // Use a TreeMap to sort meetings by date
         SortedMap<Calendar, List<T>> sorted_meetings_by_date = new TreeMap<Calendar, List<T>>();
 
-        // Add meetings that the contact will attend
+
+        // Add meetings to the SortedMap
         for (T meeting : from_meetings_list) {
+            // To avoid meetings on the same date overwriting each other, each date
+            // maps to a list of meetings for that date.
             List<T> meetings_on_date = sorted_meetings_by_date.get(meeting.getDate());
 
             if (meetings_on_date == null) {
@@ -185,22 +210,6 @@ public class ContactManagerImpl implements ContactManager {
         }
 
         return sorted_meetings;
-    }
-
-    /**
-     * I would like to use this in getFutureMeetingList and getPastMeetingList, but the former
-     * needs List<Meeting> and the latter needs List<PastMeeting>, complicating issues...
-     *
-     * As such, this isn't used. TODO: delete this.
-     */
-    private List<Meeting> filterMeetingsForContact(Collection<? extends Meeting> meetings, Contact contact) {
-        List<Meeting> meetings_with_contact = new LinkedList<Meeting>();
-        for (Meeting meeting : meetings) {
-            if (meeting.getContacts().contains(contact)) {
-                meetings_with_contact.add(meeting);
-            }
-        }
-        return meetings_with_contact;
     }
 
     @Override
@@ -266,6 +275,14 @@ public class ContactManagerImpl implements ContactManager {
         past_meetings.put(id, new PastMeetingImpl(id, date, new HashSet<Contact>(contacts), text));
     }
 
+    /**
+     * Adds a meeting to the past based on the data in the given Meeting object, and adds
+     * the given text as its note.
+     *
+     * @param meeting the meeting to base the new one on.
+     * @param text the notes to add to the old meeting.
+     * @throws IllegalStateException if the given state is in the future.
+     */
     private void addExistingMeetingToPast(Meeting meeting, String text) {
         // Check meeting is in the past (inclusive of today)
         if (!CalendarHelper.isDateInPast(meeting.getDate()))
@@ -285,7 +302,7 @@ public class ContactManagerImpl implements ContactManager {
         text = text.trim();
 
         if (future_meetings.containsKey(id)) {
-            Meeting meeting = future_meetings.get(id);
+            FutureMeeting meeting = future_meetings.get(id);
 
             // If the meeting is in the future, this will throw the appropriate exception
             addExistingMeetingToPast(meeting, text);

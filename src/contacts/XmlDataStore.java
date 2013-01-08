@@ -4,7 +4,6 @@ import contacts.helper.CalendarHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -22,9 +21,7 @@ import java.text.ParseException;
 import java.util.*;
 
 /**
- * User: Sam Wright
- * Date: 05/01/2013
- * Time: 20:03
+ * An implementation of DataStore that loads and saves data in xml files.
  */
 public class XmlDataStore implements DataStore {
     private Set<Contact> contacts = new HashSet<Contact>();
@@ -102,7 +99,23 @@ public class XmlDataStore implements DataStore {
     }
 
     /**
-     * Taken from 'http://docs.oracle.com/javaee/1.4/tutorial/doc/JAXPXSLT4.html'
+     * Resets the 'doc' to a blank document.
+     *
+     * @throws ParserConfigurationException
+     */
+    private void resetDocument() throws ParserConfigurationException {
+        DocumentBuilderFactory doc_factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder doc_builder = doc_factory.newDocumentBuilder();
+        doc = doc_builder.newDocument();
+    }
+
+    /**
+     * Writes the prepared document to an xml file at 'filename'
+     *
+     * Based heavily on 'http://docs.oracle.com/javaee/1.4/tutorial/doc/JAXPXSLT4.html'.
+     *
+     * @param filename the filename to save to.
+     * @throws TransformerException if the document couldn't be converted to xml.
      */
     private void writeXmlToFile(String filename) throws TransformerException {
         // Create transformer, which converts 'doc' into xml
@@ -124,12 +137,32 @@ public class XmlDataStore implements DataStore {
         transformer.transform(source, output);
     }
 
-    private void resetDocument() throws ParserConfigurationException {
+    /**
+     * Loads the xml file at 'filename' and converts it to a Document object
+     * for further analysis.
+     *
+     * @param filename the location of the xml file.
+     * @throws ParserConfigurationException if the xml file can't be parsed.
+     * @throws IOException if the xml file can't be found.
+     * @throws SAXException if the xml file can't be parsed.
+     */
+    private void loadXmlFromFile(String filename) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory doc_factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder doc_builder = doc_factory.newDocumentBuilder();
-        doc = doc_builder.newDocument();
+        doc = doc_builder.parse(new File(filename));
     }
 
+    /**
+     * Adds data under the given element.
+     *
+     * For example, if element represents a person ("<Person></Person>")
+     * then given data_tag = "name" and data = "Bob", this method changes
+     * element to "<Person><name>Bob</name></Person>"
+     *
+     * @param data_tag the name for the data type.
+     * @param data the data to add.
+     * @param element the element to add the data under.
+     */
     private void addDataUnderElement(String data_tag, String data, Element element) {
         // Create an element for this data type
         Element data_element = doc.createElement(data_tag);
@@ -140,6 +173,57 @@ public class XmlDataStore implements DataStore {
         element.appendChild(data_element);
     }
 
+    /**
+     * Retrieves data from under the given element.
+     *
+     * For example, if element represents a person ("<Person><name>Bob</name></Person>")
+     * then given data_tag = "name", this function would return "Bob".
+     *
+     * @param data_tag the name for the data type.
+     * @param node the node to retrieve the data from.
+     * @return the data in the node with the given data_tag.
+     */
+    private String getDataUnderNode(String data_tag, Node node) {
+        // Get relevant data_tag node
+        Node data_tag_node = ((Element) node).getElementsByTagName(data_tag).item(0);
+
+        // Get data value node
+        Node data_node = data_tag_node.getFirstChild();
+
+        // Return value of node
+        return data_node.getNodeValue();
+    }
+
+    /**
+     * Adds the given id to the given element as an attribute.
+     * <p/>
+     * For example, if element represents a contact ("<contact></contact>")
+     * then with id = 5, this method changes element to "<contact id="5"></contact>"
+     *
+     * @param id
+     * @param element
+     */
+    private void addIdToElement(int id, Element element) {
+        element.setAttribute("id", String.valueOf(id));
+    }
+
+    /**
+     * Retrieves the id attribute from the given node (eg. if
+     * the node represented "<contact id="5"></contact>", this would
+     * return 5.
+     *
+     * @param node the node to retrieve the id attribute from.
+     * @return the id of the node.
+     */
+    private int getIdFromNode(Node node) {
+        return Integer.valueOf(((Element) node).getAttribute("id"));
+    }
+
+    /**
+     * Adds all contacts under the given element.
+     *
+     * @param top_element the element under which to add all contact data.
+     */
     private void addContactsUnderElement(Element top_element) {
         // Create top-level element for all contacts
         Element contacts_root = doc.createElement("Contacts");
@@ -160,6 +244,11 @@ public class XmlDataStore implements DataStore {
         }
     }
 
+    /**
+     * Adds all future meetings under the given element.
+     *
+     * @param top_element the element under which to add all future meetings data.
+     */
     private void addFutureMeetingsUnderElement(Element top_element) {
         // Create top-level element for all future meetings
         Element future_meetings_root = doc.createElement("FutureMeetings");
@@ -175,6 +264,11 @@ public class XmlDataStore implements DataStore {
         }
     }
 
+    /**
+     * Adds all past meetings under the given element.
+     *
+     * @param top_element the element under which to add all past meetings data.
+     */
     private void addPastMeetingsUnderElement(Element top_element) {
         // Create top-level element for all past meetings
         Element past_meetings_root = doc.createElement("PastMeetings");
@@ -193,10 +287,12 @@ public class XmlDataStore implements DataStore {
         }
     }
 
-    private void addIdToElement(int id, Element element) {
-        element.setAttribute("id", String.valueOf(id));
-    }
-
+    /**
+     * Creates an element that contains all of the data in the given meeting object.
+     *
+     * @param meeting the meeting to take the data from.
+     * @return a new element containing all data from the given meeting.
+     */
     private Element createElementFromMeeting(Meeting meeting) {
         // Create element for meeting
         Element meeting_element = doc.createElement("meeting");
@@ -225,7 +321,7 @@ public class XmlDataStore implements DataStore {
     }
 
     @Override
-    public void loadFromFilename(String filename) {
+    public void loadFromFilename(String filename) throws IOException {
         try {
             // Clear data in this store
             contacts.clear();
@@ -242,16 +338,21 @@ public class XmlDataStore implements DataStore {
 
 
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException(e);
         } catch (SAXException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException(e);
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException(e);
         }
     }
 
+    /**
+     * Returns contact objects from the given node that represents a meeting
+     * (ie. returns the list of attendees for a given meeting).
+     *
+     * @param meeting_node the node representing a meeting.
+     * @return the contact objects who attended the meeting.
+     */
     private Set<Contact> getContactsFromMeetingNode(Node meeting_node) {
         Set<Contact> meeting_contacts = new HashSet<Contact>();
 
@@ -272,6 +373,11 @@ public class XmlDataStore implements DataStore {
         return meeting_contacts;
     }
 
+    /**
+     * Loads future meetings from the loaded xml file.
+     *
+     * @throws ParseException if the xml couldn't be parsed.
+     */
     private void loadFutureMeetings() throws ParseException {
         Node top_level_meetings_node = doc.getElementsByTagName("FutureMeetings").item(0);
 
@@ -294,6 +400,11 @@ public class XmlDataStore implements DataStore {
         }
     }
 
+    /**
+     * Loads past meetings from the loaded xml file.
+     *
+     * @throws ParseException if the xml couldn't be parsed.
+     */
     private void loadPastMeetings() throws ParseException {
         Node top_level_meetings_node = doc.getElementsByTagName("PastMeetings").item(0);
 
@@ -317,6 +428,11 @@ public class XmlDataStore implements DataStore {
         }
     }
 
+    /**
+     * Loads contacts from the loaded xml file.
+     *
+     * @throws ParseException if the xml couldn't be parsed.
+     */
     private void loadContacts() {
         Node top_level_contacts_node = doc.getElementsByTagName("Contacts").item(0);
 
@@ -347,25 +463,4 @@ public class XmlDataStore implements DataStore {
         }
     }
 
-    private int getIdFromNode(Node node) {
-        return Integer.valueOf(((Element) node).getAttribute("id"));
-    }
-
-    private String getDataUnderNode(String data_tag, Node node) {
-        // Get relevant data_tag node
-        Node data_tag_node = ((Element) node).getElementsByTagName(data_tag).item(0);
-
-        // Get data value node
-        Node data_node = data_tag_node.getFirstChild();
-
-        // Return value of node
-        return data_node.getNodeValue();
-    }
-
-    private void loadXmlFromFile(String filename) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory doc_factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder doc_builder = doc_factory.newDocumentBuilder();
-        doc = doc_builder.parse(new File(filename));
-        //doc.normalize();
-    }
 }

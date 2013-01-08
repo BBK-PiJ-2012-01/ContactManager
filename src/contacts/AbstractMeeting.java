@@ -7,9 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 16:46
+ * An abstract implementation of Meeting.  FutureMeetingImpl and PastMeetingImpl
+ * derive functionality from this.
  */
 abstract public class AbstractMeeting implements Meeting {
     private final int id;

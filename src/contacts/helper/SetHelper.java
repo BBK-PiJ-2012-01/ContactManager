@@ -5,9 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 06/01/2013
- * Time: 03:37
+ * A class containing a helper function for creating sets of objects.
  */
 public class SetHelper {
     /**

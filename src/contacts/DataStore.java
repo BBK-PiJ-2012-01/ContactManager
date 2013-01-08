@@ -1,5 +1,7 @@
 package contacts;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -60,7 +62,7 @@ public interface DataStore {
      * Writes the document to the given filename.
      *
      * @param filename the name of the file to be (over)written to.
-     * @throws java.io.IOException if file cannot be written.
+     * @throws IOException if file cannot be written.
      */
     void writeToFilename(String filename);
 
@@ -68,8 +70,8 @@ public interface DataStore {
      * Reads data from the file at the given filename.
      *
      * @param filename the name of the file to load.
-     * @throws java.io.IOException if file cannot be read.
+     * @throws IOException if file cannot be read.
      * @throws IllegalArgumentException if file cannot be parsed.
      */
-    void loadFromFilename(String filename);
+    void loadFromFilename(String filename) throws IOException;
 }

@@ -1,9 +1,9 @@
 package contacts;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 16:45
+ * An implementation of Contact.
+ *
+ * Notes added are automatically trimmed, and subsequent notes are added on new lines.
  */
 public class ContactImpl implements Contact {
     private final int id;

@@ -4,9 +4,7 @@ import java.util.Calendar;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 16:46
+ * An implementation of PastMeeting, extending AbstractMeeting by allowing notes to be added.
  */
 public class PastMeetingImpl extends AbstractMeeting implements PastMeeting {
     private final String notes;

@@ -6,9 +6,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * User: Sam Wright
- * Date: 05/01/2013
- * Time: 22:49
+ * A class containing helper methods for dealing with Calendar objects.
+ *
+ * NB. This class actively ignores the time element of Calendar objects
+ * (ie. only looks at the year, month and date).
  */
 public class CalendarHelper {
 
