@@ -1,5 +1,6 @@
 package contactsmanager;
 
+import contactsmanager.helper.CalendarHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,9 @@ public class ContactManagerImplTest {
         meeting_id = -1;
     }
 
+    /**
+     * Resets the manager to containing alice, bob and charlie, and no meetings.
+     */
     private void resetManager() {
         manager = new ContactManagerImpl(filename);
 
@@ -47,6 +51,13 @@ public class ContactManagerImplTest {
         contacts = setOf(alice, bob, charlie);
     }
 
+    /**
+     * Adds a contact to the manager, then returns the Contact object.
+     *
+     * @param name the name of the new contact to create.
+     * @param note the note to add to the new contact.
+     * @return the newly-created contact object that's registered with the manager.
+     */
     private Contact addThenReturnContact(String name, String note) {
         // Check there isn't a similarly-named contact already
         assertTrue(manager.getContacts(name).isEmpty());
@@ -58,11 +69,17 @@ public class ContactManagerImplTest {
         return (Contact) manager.getContacts(name).toArray()[0];
     }
 
+    /**
+     * Sets date to the past.
+     */
     private void setDateInPast() {
         date = Calendar.getInstance();
         date.set(2000, Calendar.APRIL, 13);
     }
 
+    /**
+     * Sets 'date' to the future.
+     */
     private void setDateInFuture() {
         date = Calendar.getInstance();
         date.set(2054, Calendar.DECEMBER, 23);
@@ -75,7 +92,13 @@ public class ContactManagerImplTest {
         date = Calendar.getInstance();
     }
 
-    private void checkMeetingsList(Set<Integer> expected_ids, List<? extends Meeting> meetings) throws Exception {
+    /**
+     * Checks that the given meetings have the given ids, and are sorted chronologically.
+     *
+     * @param expected_ids the meeting ids expected.
+     * @param meetings the meetings to check.
+     */
+    private void checkMeetingsList(Set<Integer> expected_ids, List<? extends Meeting> meetings) {
         // Checks that the returned meetings match the given ids
         Set<Integer> meeting_ids = new HashSet<Integer>();
         for (Meeting m : meetings) {
@@ -92,18 +115,27 @@ public class ContactManagerImplTest {
         for (Meeting next_meeting : meetings) {
             if (previous_meeting != null
                     && next_meeting.getDate().before(previous_meeting.getDate())) {
-                throw new Exception("Meetings were not in chronological order");
+                throw new AssertionError("Meetings were not in chronological order");
             }
 
             previous_meeting = next_meeting;
         }
     }
 
+    /**
+     * Checks that the given meeting's contacts are equal to 'contacts'
+     * and its date is equal to 'date', and its meeting_id is equal to
+     * 'meeting_id'.
+     *
+     * @param meeting the meeting to check.
+     * @throws Exception if the meeting_id to check against hasn't been set (ie. is -1)
+     */
     private void checkMeeting(Meeting meeting) throws Exception {
         assertNotNull(meeting);
 
         assertEquals(contacts, meeting.getContacts());
-        assertEquals(date, meeting.getDate());
+        assertTrue(CalendarHelper.areDatesEqual(date, meeting.getDate()));
+
         if (meeting_id != -1)
             assertEquals(meeting_id, meeting.getId());
         else

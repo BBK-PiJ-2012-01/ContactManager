@@ -51,15 +51,27 @@ public class XmlDataStoreTest {
         pm3 = new PastMeetingImpl(6, getPastDate(3), setOf(alice), notes3);
     }
 
-    private Calendar getFutureDate(int seed) {
+    /**
+     * Gets a Calendar object set in the future, on the given date of the month.
+     *
+     * @param date_of_month the date of the month the to set the Calendar object to.
+     * @return the Calendar object set in the future on the specified date of the month.
+     */
+    private Calendar getFutureDate(int date_of_month) {
         Calendar date = Calendar.getInstance();
-        date.set(2053, Calendar.JANUARY, seed);
+        date.set(2053, Calendar.JANUARY, date_of_month);
         return date;
     }
 
-    private Calendar getPastDate(int seed) {
+    /**
+     * Gets a Calendar object set in the past, on the given date of the month.
+     *
+     * @param date_of_month the date of the month the to set the Calendar object to.
+     * @return the Calendar object set in the past on the specified date of the month.
+     */
+    private Calendar getPastDate(int date_of_month) {
         Calendar date = Calendar.getInstance();
-        date.set(1953, Calendar.JANUARY, seed);
+        date.set(1953, Calendar.JANUARY, date_of_month);
         return date;
     }
 
