@@ -559,7 +559,6 @@ public class ContactManagerImplTest {
         assertEquals(3, harold.getId());
     }
 
-    // TODO: test loading meetings with unknown contacts.  It should load the other meetings but not the bad ones.
     @Test
     public void testLoadBadMeetings() throws Exception {
         DataStore bad_store = new XmlDataStore();
