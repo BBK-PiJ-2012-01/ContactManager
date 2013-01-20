@@ -1,9 +1,9 @@
-package contactsmanager.helper;
+package contactsmanager.util;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import static contactsmanager.helper.CalendarHelper.*;
+import static contactsmanager.util.CalendarUtil.*;
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
@@ -13,7 +13,7 @@ import java.util.Calendar;
  * Date: 07/01/2013
  * Time: 19:09
  */
-public class CalendarHelperTest {
+public class CalendarUtilTest {
     Calendar past, present, future;
 
     @Before

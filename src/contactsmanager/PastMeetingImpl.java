@@ -38,4 +38,9 @@ public class PastMeetingImpl extends AbstractMeeting implements PastMeeting {
         result = 31 * result + notes.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " with notes: " + notes;
+    }
 }

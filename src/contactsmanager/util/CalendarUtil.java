@@ -1,4 +1,4 @@
-package contactsmanager.helper;
+package contactsmanager.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -6,12 +6,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * A class containing helper methods for dealing with Calendar objects.
+ * A class containing utility methods for dealing with Calendar objects.
  *
  * NB. This class actively ignores the time element of Calendar objects
  * (ie. only looks at the year, month and date).
  */
-public class CalendarHelper {
+public class CalendarUtil {
 
     /**
      * Returns true if the given Calendar date (eg. 1st of January, 2012)
@@ -89,10 +89,6 @@ public class CalendarHelper {
      * @return Whether the Calendar objects fall on the same calendar date.
      */
     public static boolean areDatesEqual(Calendar first, Calendar second) {
-        if (getSimpleCalendarString(first).equals(getSimpleCalendarString(second))) {
-            return true;
-        } else {
-            return false;
-        }
+        return getSimpleCalendarString(first).equals(getSimpleCalendarString(second));
     }
 }

@@ -1,11 +1,11 @@
 package contactsmanager;
 
-import contactsmanager.helper.CalendarHelper;
+import contactsmanager.util.CalendarUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static contactsmanager.helper.SetHelper.setOf;
+import static contactsmanager.util.SetUtil.setOf;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -24,6 +24,7 @@ public class ContactManagerImplTest {
     private String note = "Note";
     private int meeting_id;
     private Contact alice, bob, charlie, dave;
+    private final int ALICE_ID = 0, BOB_ID = 1, CHARLIE_ID = 2;
     private String filename = "ContactManagerImplTest_output.xml";
 
     @Before
@@ -134,7 +135,7 @@ public class ContactManagerImplTest {
         assertNotNull(meeting);
 
         assertEquals(contacts, meeting.getContacts());
-        assertTrue(CalendarHelper.areDatesEqual(date, meeting.getDate()));
+        assertTrue(CalendarUtil.areDatesEqual(date, meeting.getDate()));
 
         if (meeting_id != -1)
             assertEquals(meeting_id, meeting.getId());
@@ -469,18 +470,24 @@ public class ContactManagerImplTest {
 
     @Test
     public void testGetContactsBySingleId() throws Exception {
-        assertEquals(setOf(alice), manager.getContacts(alice.getId()));
-        assertEquals(setOf(bob), manager.getContacts(bob.getId()));
-        assertEquals(setOf(charlie), manager.getContacts(charlie.getId()));
+        // Check manager gives the correct Contact object for the given id
+        assertEquals(setOf(alice), manager.getContacts(ALICE_ID));
+        assertEquals(setOf(bob), manager.getContacts(BOB_ID));
+        assertEquals(setOf(charlie), manager.getContacts(CHARLIE_ID));
+
+        // Check id of Contact object matches expected id
+        assertEquals(ALICE_ID, alice.getId());
+        assertEquals(BOB_ID, bob.getId());
+        assertEquals(CHARLIE_ID, charlie.getId());
     }
 
     @Test
     public void testGetContactsByMultipleIds() throws Exception {
-        assertEquals(setOf(alice, bob), manager.getContacts(alice.getId(), bob.getId()));
-        assertEquals(setOf(bob, charlie), manager.getContacts(bob.getId(), charlie.getId()));
-        assertEquals(setOf(charlie, alice), manager.getContacts(charlie.getId(), alice.getId()));
+        assertEquals(setOf(alice, bob), manager.getContacts(ALICE_ID, BOB_ID));
+        assertEquals(setOf(bob, charlie), manager.getContacts(BOB_ID, CHARLIE_ID));
+        assertEquals(setOf(charlie, alice), manager.getContacts(CHARLIE_ID, ALICE_ID));
 
-        assertEquals(setOf(alice, bob, charlie), manager.getContacts(alice.getId(), bob.getId(), charlie.getId()));
+        assertEquals(setOf(alice, bob, charlie), manager.getContacts(ALICE_ID, BOB_ID, CHARLIE_ID));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -490,7 +497,7 @@ public class ContactManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetContactsByBadIdAmongstGood() throws Exception {
-        manager.getContacts(alice.getId(), -99);
+        manager.getContacts(ALICE_ID, -99);
     }
 
     @Test
@@ -515,7 +522,6 @@ public class ContactManagerImplTest {
         FutureMeeting future_meeting = manager.getFutureMeeting(future_meeting_id);
         PastMeeting past_meeting = manager.getPastMeeting(past_meeting_id);
 
-        System.out.println("debug start...");
         assertTrue(future_meeting.equals(expected_future_meeting));
 
         assertEquals(expected_future_meeting, future_meeting);
@@ -530,17 +536,76 @@ public class ContactManagerImplTest {
         // Recreate manager (from file)
         manager = new ContactManagerImpl(filename);
 
-        // Get the new contact objects
-        Contact loaded_alice, loaded_bob, loaded_charlie;
-        loaded_alice = (Contact) manager.getContacts(alice.getId()).toArray()[0];
-        loaded_bob = (Contact) manager.getContacts(bob.getId()).toArray()[0];
-        loaded_charlie = (Contact) manager.getContacts(charlie.getId()).toArray()[0];
-
         // Check loaded contacts have same information as previous contacts
-        assertEquals(alice, loaded_alice);
-        assertEquals(bob, loaded_bob);
-        assertEquals(charlie, loaded_charlie);
+        testGetContactsBySingleId();
     }
+
+    @Test
+    public void testLoadThenAddContact() throws Exception {
+        testFlushUsers();
+        testFlushMeetings();
+
+        // Add harold and check he's there
+        Contact harold = addThenReturnContact("Harold", "note");
+
+        // Check alice, bob, and charlie are still there
+        testGetContactsByName();
+
+        // Check alice, bob and charlie ids are as expected
+        testGetContactsBySingleId();
+
+        // Check harold's id is correct (ie. no id has been skipped or used twice)
+        assertEquals(setOf(harold), manager.getContacts(3));
+        assertEquals(3, harold.getId());
+    }
+
+    // TODO: test loading meetings with unknown contacts.  It should load the other meetings but not the bad ones.
+    @Test
+    public void testLoadBadMeetings() throws Exception {
+        DataStore bad_store = new XmlDataStore();
+
+        // Set contacts of data store to not include bob or charlie
+        bad_store.setContacts(setOf(alice));
+
+        // Add future meeting with contacts: alice, bob, charlie
+        testGetFutureMeeting();
+        FutureMeeting bad_future_meeting = manager.getFutureMeeting(meeting_id);
+
+        // Add past meeting with contacts: alice, bob, charlie
+        testGetPastMeeting();
+        PastMeeting bad_past_meeting = manager.getPastMeeting(meeting_id);
+
+        // Set of contacts to add to meetings now just includes alice
+        contacts = setOf(alice);
+
+        // Add future meeting with contacts: alice
+        testGetFutureMeeting();
+        FutureMeeting good_future_meeting = manager.getFutureMeeting(meeting_id);
+
+        // Add past meeting with contacts: alice
+        testGetPastMeeting();
+        PastMeeting good_past_meeting = manager.getPastMeeting(meeting_id);
+
+        // Put meetings into data_store and write to file
+        bad_store.setFutureMeetings(setOf(bad_future_meeting, good_future_meeting));
+        bad_store.setPastMeetings(setOf(bad_past_meeting, good_past_meeting));
+        bad_store.writeToFilename(filename);
+
+        // Load from file into new manager object
+        manager = new ContactManagerImpl(filename);
+
+        System.out.println("expected:" + setOf(good_future_meeting));
+        System.out.println("got:" + manager.getFutureMeetingList(alice));
+
+        // Check only the good future meeting was loaded
+        assertEquals(1, manager.getFutureMeetingList(alice).size());
+        assertEquals(good_future_meeting, manager.getFutureMeetingList(alice).get(0));
+
+        // Check only the good past meeting was loaded
+        assertEquals(1, manager.getPastMeetingList(alice).size());
+        assertEquals(good_past_meeting, manager.getPastMeetingList(alice).get(0));
+    }
+
 
     @After
     public void cleanUp() {

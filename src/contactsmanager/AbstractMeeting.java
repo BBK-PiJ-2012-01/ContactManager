@@ -1,6 +1,6 @@
 package contactsmanager;
 
-import contactsmanager.helper.CalendarHelper;
+import contactsmanager.util.CalendarUtil;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -19,7 +19,7 @@ abstract public class AbstractMeeting implements Meeting {
     public AbstractMeeting(int id, Calendar date, Set<Contact> contacts) {
         this.id = id;
         this.date = (Calendar) date.clone();
-        this.date_str = CalendarHelper.getSimpleCalendarString(date);
+        this.date_str = CalendarUtil.getSimpleCalendarString(date);
         this.contacts = new HashSet<Contact>(contacts);
     }
 
@@ -58,5 +58,10 @@ abstract public class AbstractMeeting implements Meeting {
         result = 31 * result + date_str.hashCode();
         result = 31 * result + contacts.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Meeting with id=%d on date %s with contacts %s", id, date_str, contacts.toString());
     }
 }

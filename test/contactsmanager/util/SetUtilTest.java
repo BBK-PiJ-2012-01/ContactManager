@@ -1,8 +1,8 @@
-package contactsmanager.helper;
+package contactsmanager.util;
 
 import org.junit.Test;
 
-import static contactsmanager.helper.SetHelper.*;
+import static contactsmanager.util.SetUtil.*;
 import static org.junit.Assert.*;
 
 import java.util.Set;
@@ -12,7 +12,7 @@ import java.util.Set;
  * Date: 07/01/2013
  * Time: 19:33
  */
-public class SetHelperTest {
+public class SetUtilTest {
 
     @Test
     public void testSetOfStrings() throws Exception {

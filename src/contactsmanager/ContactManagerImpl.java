@@ -1,6 +1,6 @@
 package contactsmanager;
 
-import contactsmanager.helper.CalendarHelper;
+import contactsmanager.util.CalendarUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.util.*;
  * An implementation of ContactManager.
  */
 public class ContactManagerImpl implements ContactManager {
+    private static final String DEFAULT_FILENAME = "contacts.txt";
     private final String filename;
     private int last_contact_id = -1;
     private int last_meeting_id = -1;
@@ -17,6 +18,20 @@ public class ContactManagerImpl implements ContactManager {
     private Map<Integer, PastMeeting> past_meetings = new HashMap<Integer, PastMeeting>();
     private Map<Integer, FutureMeeting> future_meetings = new HashMap<Integer, FutureMeeting>();
 
+    /**
+     * Create a new ContactManagerImpl object using the default filename ("contacts.txt") for storage.
+     * If the file already exists, this will load from it.
+     */
+    public ContactManagerImpl() {
+        this(DEFAULT_FILENAME);
+    }
+
+    /**
+     * Creates a new ContactManagerImpl object using the given filename for storage.
+     * If the file already exists, this will load from it.
+     *
+     * @param filename the file location to store data in.
+     */
     public ContactManagerImpl(String filename) {
         this.filename = filename;
 
@@ -26,6 +41,9 @@ public class ContactManagerImpl implements ContactManager {
 
     /**
      * Loads 'known_contacts', 'past_meetings', and 'future_meetings' from the xml file at 'filename'.
+     *
+     * Meetings with unknown contacts aren't loaded (with a warning printed to stdout), but won't
+     * prevent loading the rest of the meetings.
      */
     private void loadFromFile() {
         DataStore data = new XmlDataStore();
@@ -47,8 +65,8 @@ public class ContactManagerImpl implements ContactManager {
         // Load past meetings
         for (PastMeeting meeting : data.getPastMeetings()) {
             // Ensure date is in past (inclusive of today)
-            if (!CalendarHelper.isDateInPast(meeting.getDate())) {
-                System.out.format("Coudln't load from file '%s'.  Past meeting %d is set in the future.",
+            if (!CalendarUtil.isDateInPast(meeting.getDate())) {
+                System.out.format("Coudln't load from file '%s'.  Past meeting %d is set in the future.\n",
                         filename, meeting.getId());
                 continue;
             }
@@ -57,7 +75,7 @@ public class ContactManagerImpl implements ContactManager {
                 // Ensure contacts are known
                 ensureContactsAreKnown(meeting.getContacts());
             } catch (IllegalArgumentException err) {
-                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.",
+                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.\n",
                         filename, meeting.getId());
                 continue;
             }
@@ -68,8 +86,8 @@ public class ContactManagerImpl implements ContactManager {
         // Load future meetings
         for (FutureMeeting meeting : data.getFutureMeetings()) {
             // Ensure date is in future (inclusive of today)
-            if (!CalendarHelper.isDateInFuture(meeting.getDate())) {
-                System.out.format("Coudln't load from file '%s'.  Future meeting %d is set in the past.",
+            if (!CalendarUtil.isDateInFuture(meeting.getDate())) {
+                System.out.format("Coudln't load from file '%s'.  Future meeting %d is set in the past.\n",
                         filename, meeting.getId());
                 continue;
             }
@@ -78,7 +96,7 @@ public class ContactManagerImpl implements ContactManager {
                 // Ensure contacts are known
                 ensureContactsAreKnown(meeting.getContacts());
             } catch (IllegalArgumentException err) {
-                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.",
+                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.\n",
                         filename, meeting.getId());
                 continue;
             }
@@ -138,8 +156,8 @@ public class ContactManagerImpl implements ContactManager {
             throw new NullPointerException("date is null");
 
         // Ensure date is in future (inclusive of today)
-        if (!CalendarHelper.isDateInFuture(date))
-            throw new IllegalArgumentException("Date " + CalendarHelper.getSimpleCalendarString(date) + " is in the past");
+        if (!CalendarUtil.isDateInFuture(date))
+            throw new IllegalArgumentException("Date " + CalendarUtil.getSimpleCalendarString(date) + " is in the past");
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -270,8 +288,8 @@ public class ContactManagerImpl implements ContactManager {
             throw new NullPointerException("text is null");
 
         // Ensure date is in past (inclusive of today)
-        if (!CalendarHelper.isDateInPast(date))
-            throw new IllegalArgumentException("Date " + CalendarHelper.getSimpleCalendarString(date) + " is in the future");
+        if (!CalendarUtil.isDateInPast(date))
+            throw new IllegalArgumentException("Date " + CalendarUtil.getSimpleCalendarString(date) + " is in the future");
 
         // Ensure contacts are known
         ensureContactsAreKnown(contacts);
@@ -291,8 +309,8 @@ public class ContactManagerImpl implements ContactManager {
      */
     private void addExistingMeetingToPast(Meeting meeting, String text) {
         // Check meeting is in the past (inclusive of today)
-        if (!CalendarHelper.isDateInPast(meeting.getDate()))
-            throw new IllegalStateException("Date " + CalendarHelper.getSimpleCalendarString(meeting.getDate()) + " is in the future");
+        if (!CalendarUtil.isDateInPast(meeting.getDate()))
+            throw new IllegalStateException("Date " + CalendarUtil.getSimpleCalendarString(meeting.getDate()) + " is in the future");
 
         // Recreate as past meeting
         PastMeeting new_meeting = new PastMeetingImpl(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);

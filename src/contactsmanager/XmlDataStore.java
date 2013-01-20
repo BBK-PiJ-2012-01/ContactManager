@@ -1,6 +1,6 @@
 package contactsmanager;
 
-import contactsmanager.helper.CalendarHelper;
+import contactsmanager.util.CalendarUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -323,7 +323,7 @@ public class XmlDataStore implements DataStore {
         Element meeting_element = doc.createElement("meeting");
 
         // Add date to meeting_element
-        addDataUnderElement("date", CalendarHelper.getSimpleCalendarString(meeting.getDate()), meeting_element);
+        addDataUnderElement("date", CalendarUtil.getSimpleCalendarString(meeting.getDate()), meeting_element);
 
         // Add id to meeting_element as attribute
         addIdToElement(meeting.getId(), meeting_element);
@@ -417,7 +417,7 @@ public class XmlDataStore implements DataStore {
                 int id = getIdFromNode(meeting_node);
 
                 // Get rest of contact data
-                Calendar date = CalendarHelper.getCalendarFromString(getDataUnderNode("date", meeting_node));
+                Calendar date = CalendarUtil.getCalendarFromString(getDataUnderNode("date", meeting_node));
                 Set<Contact> meeting_contacts = getContactsFromMeetingNode(meeting_node);
 
                 // Create meeting object
@@ -445,7 +445,7 @@ public class XmlDataStore implements DataStore {
                 int id = getIdFromNode(meeting_node);
 
                 // Get rest of contact data
-                Calendar date = CalendarHelper.getCalendarFromString(getDataUnderNode("date", meeting_node));
+                Calendar date = CalendarUtil.getCalendarFromString(getDataUnderNode("date", meeting_node));
                 String notes = getDataUnderNode("notes", meeting_node);
                 Set<Contact> meeting_contacts = getContactsFromMeetingNode(meeting_node);
 

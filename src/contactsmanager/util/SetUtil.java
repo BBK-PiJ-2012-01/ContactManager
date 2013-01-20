@@ -1,13 +1,13 @@
-package contactsmanager.helper;
+package contactsmanager.util;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A class containing a helper function for creating sets of objects.
+ * A class containing a utility function for creating sets of objects.
  */
-public class SetHelper {
+public class SetUtil {
     /**
      * Returns of set of the objects given in the vararg.
      *

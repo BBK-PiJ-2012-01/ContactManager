@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static contactsmanager.helper.SetHelper.setOf;
+import static contactsmanager.util.SetUtil.setOf;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -151,8 +151,6 @@ public class XmlDataStoreTest {
         // Check future meetings loaded
         assertEquals(setOf(fm1, fm2, fm3), doc.getFutureMeetings());
     }
-
-    // TODO: test for writeToFilename and loadFromFilename exceptions...
 
     @Test(expected = IOException.class)
     public void testWriteToBadFilename() throws Exception {

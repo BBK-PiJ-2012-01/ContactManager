@@ -60,4 +60,9 @@ public class ContactImpl implements Contact {
         result = 31 * result + notes.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Contact with id=%d, name=%s, notes=%s", id, name, notes);
+    }
 }
