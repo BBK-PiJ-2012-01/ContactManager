@@ -147,10 +147,13 @@ public class ContactManagerImplTest {
     public void testAddNewPastMeeting() throws Exception {
         setDateInPast();
         manager.addNewPastMeeting(contacts, date, note);
+    }
 
-        // TODO: Strangely, adding a past meeting in the future is fine.
-        //setDateInFuture();
-        //manager.addNewPastMeeting(contacts, date, note);
+    // TODO: This behaviour, whilst expected, is not prescribed in the interface!
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddPastMeetingInFuture() throws Exception {
+        setDateInFuture();
+        manager.addNewPastMeeting(contacts, date, note);
     }
 
     @Test(expected = IllegalArgumentException.class)
