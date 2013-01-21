@@ -25,11 +25,11 @@ import java.util.*;
  * An implementation of DataStore that loads and saves data in xml files.
  */
 public class XmlDataStore implements DataStore {
-    private Set<Contact> contacts = new HashSet<Contact>();
-    private Set<PastMeeting> past_meetings = new HashSet<PastMeeting>();
-    private Set<FutureMeeting> future_meetings = new HashSet<FutureMeeting>();
+    private final Set<Contact> contacts = new HashSet<Contact>();
+    private final Set<PastMeeting> past_meetings = new HashSet<PastMeeting>();
+    private final Set<FutureMeeting> future_meetings = new HashSet<FutureMeeting>();
     private Document doc;
-    private Map<Integer, Contact> contacts_by_id = new HashMap<Integer, Contact>();
+    private final Map<Integer, Contact> contacts_by_id = new HashMap<Integer, Contact>();
 
     @Override
     public void setContacts(Collection<Contact> contacts) {
@@ -49,7 +49,7 @@ public class XmlDataStore implements DataStore {
     @Override
     public void setFutureMeetings(Collection<FutureMeeting> meetings) {
         // Check for null meetings
-        if (contacts == null)
+        if (meetings == null)
             throw new NullPointerException("Null future meetings");
 
         this.future_meetings.clear();
@@ -64,7 +64,7 @@ public class XmlDataStore implements DataStore {
     @Override
     public void setPastMeetings(Collection<PastMeeting> meetings) {
         // Check for null meetings
-        if (contacts == null)
+        if (meetings == null)
             throw new NullPointerException("Null past meetings");
 
         this.past_meetings.clear();

@@ -5,7 +5,7 @@ import java.util.Set;
 
 /**
  * An implementation of AbstractMeeting.  No functionality is added, this is simply
- * a non-abstract verion of AbstractMeeting.
+ * a non-abstract version of AbstractMeeting.
  */
 public class FutureMeetingImpl extends AbstractMeeting implements FutureMeeting {
 

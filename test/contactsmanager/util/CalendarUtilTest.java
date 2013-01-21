@@ -14,7 +14,7 @@ import java.util.Calendar;
  * Time: 19:09
  */
 public class CalendarUtilTest {
-    Calendar past, present, future;
+    private Calendar past, present, future;
 
     @Before
     public void setUp() throws Exception {
@@ -78,7 +78,7 @@ public class CalendarUtilTest {
     }
 
     @Test
-    public void testAreDatesInequal() throws Exception {
+    public void testAreDatesUnequal() throws Exception {
         Calendar extracted = getCalendarFromString("13/01/1956");
         assertFalse(areDatesEqual(future, extracted));
     }

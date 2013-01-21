@@ -12,10 +12,10 @@ import static org.junit.Assert.*;
  */
 public class ContactImplTest {
     private Contact c;
-    private int id = 4;
-    private String name = "Bob";
-    private String note1 = "First Note";
-    private String note2 = "Second Note";
+    private final int id = 4;
+    private final String name = "Bob";
+    private final String note1 = "First Note";
+    private final String note2 = "Second Note";
 
     @Before
     public void setUp() throws Exception {

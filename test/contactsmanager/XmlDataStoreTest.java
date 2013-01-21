@@ -22,11 +22,11 @@ public class XmlDataStoreTest {
     private Contact alice, bob, charlie;
     private FutureMeeting fm1, fm2, fm3;
     private PastMeeting pm1, pm2, pm3;
-    private String filename = "XmlDataStoreTest_output.xml";
-    private String notes1 = "Notes 1";
-    private String notes2 = "Notes 2";
-    private String notes3 = "Notes 3";
-    private String xml_file_dir = "test" + File.separator +
+    private final String filename = "XmlDataStoreTest_output.xml";
+    private final String notes1 = "Notes 1";
+    private final String notes2 = "Notes 2";
+    private final String notes3 = "Notes 3";
+    private final String xml_file_dir = "test" + File.separator +
                                     "contactsmanager" + File.separator +
                                     "xml_test_files" + File.separator;
 

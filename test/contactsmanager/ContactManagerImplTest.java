@@ -21,11 +21,11 @@ public class ContactManagerImplTest {
     private ContactManager manager;
     private Set<Contact> contacts;
     private Calendar date;
-    private String note = "Note";
+    private final String note = "Note";
     private int meeting_id;
     private Contact alice, bob, charlie, dave;
     private final int ALICE_ID = 0, BOB_ID = 1, CHARLIE_ID = 2;
-    private String filename = "ContactManagerImplTest_output.xml";
+    private final String filename = "ContactManagerImplTest_output.xml";
 
     @Before
     public void setUp() throws Exception {
@@ -391,7 +391,7 @@ public class ContactManagerImplTest {
         // Check that meeting is now in the past
         assertEquals(note, manager.getPastMeeting(meeting_id).getNotes());
 
-        // Chech that meeting is no longer in the future
+        // Check that meeting is no longer in the future
         try {
             manager.getFutureMeeting(meeting_id);
         } catch (IllegalArgumentException err) {

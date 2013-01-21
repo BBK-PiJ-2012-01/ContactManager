@@ -14,9 +14,9 @@ public class ContactManagerImpl implements ContactManager {
     private final String filename;
     private int last_contact_id = -1;
     private int last_meeting_id = -1;
-    private Map<Integer,Contact> known_contacts = new HashMap<Integer, Contact>();
-    private Map<Integer, PastMeeting> past_meetings = new HashMap<Integer, PastMeeting>();
-    private Map<Integer, FutureMeeting> future_meetings = new HashMap<Integer, FutureMeeting>();
+    private final Map<Integer,Contact> known_contacts = new HashMap<Integer, Contact>();
+    private final Map<Integer, PastMeeting> past_meetings = new HashMap<Integer, PastMeeting>();
+    private final Map<Integer, FutureMeeting> future_meetings = new HashMap<Integer, FutureMeeting>();
 
     /**
      * Create a new ContactManagerImpl object using the default filename ("contacts.txt") for storage.
@@ -66,7 +66,7 @@ public class ContactManagerImpl implements ContactManager {
         for (PastMeeting meeting : data.getPastMeetings()) {
             // Ensure date is in past (inclusive of today)
             if (!CalendarUtil.isDateInPast(meeting.getDate())) {
-                System.out.format("Coudln't load from file '%s'.  Past meeting %d is set in the future.\n",
+                System.out.format("Couldn't load from file '%s'.  Past meeting %d is set in the future.\n",
                         filename, meeting.getId());
                 continue;
             }
@@ -87,7 +87,7 @@ public class ContactManagerImpl implements ContactManager {
         for (FutureMeeting meeting : data.getFutureMeetings()) {
             // Ensure date is in future (inclusive of today)
             if (!CalendarUtil.isDateInFuture(meeting.getDate())) {
-                System.out.format("Coudln't load from file '%s'.  Future meeting %d is set in the past.\n",
+                System.out.format("Couldn't load from file '%s'.  Future meeting %d is set in the past.\n",
                         filename, meeting.getId());
                 continue;
             }
@@ -170,7 +170,7 @@ public class ContactManagerImpl implements ContactManager {
 
     @Override
     public PastMeeting getPastMeeting(int id) {
-        // Chech that id is not that of a future meeting
+        // Check that id is not that of a future meeting
         if (future_meetings.containsKey(id)) {
             throw new IllegalArgumentException("Id " + id + " belongs to a future meeting");
         }
@@ -181,7 +181,7 @@ public class ContactManagerImpl implements ContactManager {
 
     @Override
     public FutureMeeting getFutureMeeting(int id) {
-        // Chech that id is not that of a past meeting
+        // Check that id is not that of a past meeting
         if (past_meetings.containsKey(id)) {
             throw new IllegalArgumentException("Id " + id + " belongs to a past meeting");
         }
