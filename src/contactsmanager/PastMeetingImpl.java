@@ -27,7 +27,7 @@ public class PastMeetingImpl extends AbstractMeeting implements PastMeeting {
 
         PastMeetingImpl that = (PastMeetingImpl) o;
 
-        if (!notes.equals(that.notes)) return false;
+        if (!this.getNotes().equals(that.getNotes())) return false;
 
         return true;
     }

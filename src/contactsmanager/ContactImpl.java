@@ -44,11 +44,11 @@ public class ContactImpl implements Contact {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ContactImpl contact = (ContactImpl) o;
+        ContactImpl that = (ContactImpl) o;
 
-        if (id != contact.id) return false;
-        if (!name.equals(contact.name)) return false;
-        if (!notes.equals(contact.notes)) return false;
+        if (this.getId() != that.getId()) return false;
+        if (!this.getName().equals(that.getName())) return false;
+        if (!this.getNotes().equals(that.getNotes())) return false;
 
         return true;
     }
