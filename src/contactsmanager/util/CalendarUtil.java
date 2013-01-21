@@ -26,10 +26,8 @@ public class CalendarUtil {
         start_of_today.set(Calendar.HOUR_OF_DAY, 0);
         start_of_today.set(Calendar.MINUTE, 0);
         start_of_today.set(Calendar.SECOND, 0);
-        if (date.after(start_of_today))
-            return true;
-        else
-            return false;
+
+        return date.after(start_of_today);
     }
 
     /**
@@ -41,14 +39,13 @@ public class CalendarUtil {
      * @return whether the given Calendar's date is in the past (inclusive of today)
      */
     public static boolean isDateInPast(Calendar date) {
-        Calendar end_of_today = Calendar.getInstance();
-        end_of_today.set(Calendar.HOUR_OF_DAY, 23);
-        end_of_today.set(Calendar.MINUTE, 59);
-        end_of_today.set(Calendar.SECOND, 59);
-        if (date.before(end_of_today))
-            return true;
-        else;
-            return false;
+        Calendar start_of_tomorrow = Calendar.getInstance();
+        start_of_tomorrow.add(Calendar.DATE, 1);
+        start_of_tomorrow.set(Calendar.HOUR_OF_DAY, 0);
+        start_of_tomorrow.set(Calendar.MINUTE, 0);
+        start_of_tomorrow.set(Calendar.SECOND, 0);
+
+        return date.before(start_of_tomorrow);
     }
 
     /**
