@@ -66,7 +66,7 @@ public class ContactManagerImpl implements ContactManager {
         for (PastMeeting meeting : data.getPastMeetings()) {
             // Ensure date is in past (inclusive of today)
             if (!CalendarUtil.isDateInPast(meeting.getDate())) {
-                System.out.format("Couldn't load from file '%s'.  Past meeting %d is set in the future.\n",
+                System.out.format("Couldn't load from file '%s'.  Past meeting %d is set in the future.%n",
                         filename, meeting.getId());
                 continue;
             }
@@ -75,7 +75,7 @@ public class ContactManagerImpl implements ContactManager {
                 // Ensure contacts are known
                 ensureContactsAreKnown(meeting.getContacts());
             } catch (IllegalArgumentException err) {
-                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.\n",
+                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.%n",
                         filename, meeting.getId());
                 continue;
             }
@@ -87,7 +87,7 @@ public class ContactManagerImpl implements ContactManager {
         for (FutureMeeting meeting : data.getFutureMeetings()) {
             // Ensure date is in future (inclusive of today)
             if (!CalendarUtil.isDateInFuture(meeting.getDate())) {
-                System.out.format("Couldn't load from file '%s'.  Future meeting %d is set in the past.\n",
+                System.out.format("Couldn't load from file '%s'.  Future meeting %d is set in the past.%n",
                         filename, meeting.getId());
                 continue;
             }
@@ -96,7 +96,7 @@ public class ContactManagerImpl implements ContactManager {
                 // Ensure contacts are known
                 ensureContactsAreKnown(meeting.getContacts());
             } catch (IllegalArgumentException err) {
-                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.\n",
+                System.out.format("Couldn't load from file '%s'.  Contacts of meeting %d were unknown.%n",
                         filename, meeting.getId());
                 continue;
             }
@@ -246,7 +246,7 @@ public class ContactManagerImpl implements ContactManager {
                 meetings_with_contact.add(meeting);
             }
         }
-        System.out.format("Contact %s has %d meetings\n", contact.getName(), meetings_with_contact.size());
+        System.out.format("Contact %s has %d meetings%n", contact.getName(), meetings_with_contact.size());
         return getSortedMeetingList(meetings_with_contact);
     }
 
@@ -275,7 +275,7 @@ public class ContactManagerImpl implements ContactManager {
                 meetings_with_contact.add(meeting);
             }
         }
-        System.out.format("Contact %s has %d meetings\n", contact.getName(), meetings_with_contact.size());
+        System.out.format("Contact %s has %d meetings%n", contact.getName(), meetings_with_contact.size());
         return getSortedMeetingList(meetings_with_contact);
     }
 
