@@ -2,8 +2,9 @@ package contactsmanager.util;
 
 import org.junit.Test;
 
-import static contactsmanager.util.SetUtil.*;
-import static org.junit.Assert.*;
+import static contactsmanager.util.SetUtil.setOf;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
 

@@ -6,10 +6,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static contactsmanager.util.SetUtil.setOf;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**

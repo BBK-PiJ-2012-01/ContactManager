@@ -3,8 +3,14 @@ package contactsmanager.util;
 import org.junit.Before;
 import org.junit.Test;
 
-import static contactsmanager.util.CalendarUtil.*;
-import static org.junit.Assert.*;
+import static contactsmanager.util.CalendarUtil.isDateInFuture;
+import static contactsmanager.util.CalendarUtil.isDateInPast;
+import static contactsmanager.util.CalendarUtil.getSimpleCalendarString;
+import static contactsmanager.util.CalendarUtil.getCalendarFromString;
+import static contactsmanager.util.CalendarUtil.areDatesEqual;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
 
