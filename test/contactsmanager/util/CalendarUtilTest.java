@@ -3,16 +3,13 @@ package contactsmanager.util;
 import org.junit.Before;
 import org.junit.Test;
 
-import static contactsmanager.util.CalendarUtil.isDateInFuture;
-import static contactsmanager.util.CalendarUtil.isDateInPast;
-import static contactsmanager.util.CalendarUtil.getSimpleCalendarString;
-import static contactsmanager.util.CalendarUtil.getCalendarFromString;
-import static contactsmanager.util.CalendarUtil.areDatesEqual;
+import static contactsmanager.util.CalendarUtil.*;
+import static contactsmanager.util.CollectionUtil.listOf;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
+import java.util.*;
 
 /**
  * User: Sam Wright
@@ -65,13 +62,13 @@ public class CalendarUtilTest {
 
     @Test
     public void testGetSimpleCalendarString() throws Exception {
-        assertEquals("13/01/1956", getSimpleCalendarString(past));
-        assertEquals("06/02/2083", getSimpleCalendarString(future));
+        assertEquals("13/01/1956", getCalendarDateString(past));
+        assertEquals("06/02/2083", getCalendarDateString(future));
     }
 
     @Test
     public void testGetCalendarFromString() throws Exception {
-        Calendar extracted = getCalendarFromString("13/01/1956");
+        Calendar extracted = getCalendarDateFromString("13/01/1956");
         assertEquals(1956, extracted.get(Calendar.YEAR));
         assertEquals(Calendar.JANUARY, extracted.get(Calendar.MONTH));
         assertEquals(13, extracted.get(Calendar.DAY_OF_MONTH));
@@ -79,13 +76,50 @@ public class CalendarUtilTest {
 
     @Test
     public void testAreDatesEqual() throws Exception {
-        Calendar extracted = getCalendarFromString("13/01/1956");
+        Calendar extracted = getCalendarDateFromString("13/01/1956");
         assertTrue(areDatesEqual(past, extracted));
     }
 
     @Test
     public void testAreDatesUnequal() throws Exception {
-        Calendar extracted = getCalendarFromString("13/01/1956");
+        Calendar extracted = getCalendarDateFromString("13/01/1956");
         assertFalse(areDatesEqual(future, extracted));
+    }
+
+    @Test
+    public void testDatesComparatorWithSort() throws Exception {
+        Calendar t1 = getCalendarDateFromString("13/01/1956");
+        Calendar t2 = getCalendarDateFromString("14/01/1956");
+        Calendar t3 = getCalendarDateFromString("15/01/1956");
+
+        List<Calendar> sorted_list = listOf(t3,t1,t2);
+        Collections.sort(sorted_list, getDateComparator());
+
+        assertEquals(listOf(t1, t2, t3), sorted_list);
+    }
+
+    @Test
+    public void testDatesComparatorWithTreeMap() throws Exception {
+        Calendar t1 = getCalendarDateFromString("13/01/1956");
+        Calendar t2 = getCalendarDateFromString("14/01/1956");
+        Calendar t3 = getCalendarDateFromString("15/01/1956");
+        Calendar t4 = getCalendarDateFromString("15/01/1956");
+        t3.set(Calendar.HOUR_OF_DAY, 12);
+        t4.set(Calendar.HOUR_OF_DAY, 13);
+
+        Map<Calendar, Integer> map = new TreeMap<Calendar, Integer>(getDateComparator());
+        map.put(t3, 3);
+        map.put(t1, 1);
+        map.put(t2, 2);
+
+        List<Integer> order = new LinkedList<Integer>(map.values());
+        assertEquals(listOf(1, 2, 3), order);
+
+        map.put(t4, 4);
+        order = new LinkedList<Integer>(map.values());
+        assertEquals(listOf(1, 2, 4), order);
+
+        assertEquals((Integer) 4, map.get(t3));
+        assertEquals((Integer) 4, map.get(t4));
     }
 }

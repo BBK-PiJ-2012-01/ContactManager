@@ -323,7 +323,7 @@ public class XmlDataStore implements DataStore {
         Element meeting_element = doc.createElement("meeting");
 
         // Add date to meeting_element
-        addDataUnderElement("date", CalendarUtil.getSimpleCalendarString(meeting.getDate()), meeting_element);
+        addDataUnderElement("date", CalendarUtil.getCalendarString(meeting.getDate()), meeting_element);
 
         // Add id to meeting_element as attribute
         addIdToElement(meeting.getId(), meeting_element);

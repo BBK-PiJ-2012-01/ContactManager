@@ -1,6 +1,6 @@
 package contactsmanager;
 
-import static contactsmanager.util.CalendarUtil.getSimpleCalendarString;
+import static contactsmanager.util.CalendarUtil.getCalendarString;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -47,9 +47,10 @@ abstract public class AbstractMeeting implements Meeting {
         if (this.getId() != that.getId()) return false;
         if (!this.getContacts().equals(that.getContacts())) return false;
 
-        String this_date_string = getSimpleCalendarString(this.getDate());
-        String that_date_string = getSimpleCalendarString(that.getDate());
-        if (!this_date_string.equals(that_date_string)) return false;
+        //String this_date_string = getCalendarString(this.getDate());
+        //String that_date_string = getCalendarString(that.getDate());
+        //if (!this_date_string.equals(that_date_string)) return false;
+        if (Math.abs(this.getDate().compareTo(that.getDate())) > 1000) return false;
 
         return true;
     }
@@ -58,7 +59,7 @@ abstract public class AbstractMeeting implements Meeting {
     public int hashCode() {
         // Adapted from code generated automatically by IntelliJ
         int result = id;
-        result = 31 * result + getSimpleCalendarString(date).hashCode();
+        result = 31 * result + getCalendarString(date).hashCode();
         result = 31 * result + contacts.hashCode();
         return result;
     }
@@ -66,6 +67,6 @@ abstract public class AbstractMeeting implements Meeting {
     @Override
     public String toString() {
         return String.format("Meeting with id=%d on date %s with contacts %s",
-                id, getSimpleCalendarString(date), contacts.toString());
+                id, getCalendarString(date), contacts.toString());
     }
 }

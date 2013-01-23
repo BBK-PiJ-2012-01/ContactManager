@@ -2,7 +2,7 @@ package contactsmanager.util;
 
 import org.junit.Test;
 
-import static contactsmanager.util.SetUtil.setOf;
+import static contactsmanager.util.CollectionUtil.setOf;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
@@ -13,7 +13,7 @@ import java.util.Set;
  * Date: 07/01/2013
  * Time: 19:33
  */
-public class SetUtilTest {
+public class CollectionUtilTest {
 
     @Test
     public void testSetOfStrings() throws Exception {

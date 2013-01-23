@@ -5,7 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static contactsmanager.util.SetUtil.setOf;
+import static contactsmanager.util.CollectionUtil.setOf;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -371,21 +371,40 @@ public class ContactManagerImplTest {
 
     @Test
     public void testGetFutureMeetingListPerDate() throws Exception {
-        Calendar t1 = Calendar.getInstance();
-        t1.set(2053, Calendar.JANUARY, 2);
-        Calendar t2 = Calendar.getInstance();
-        t2.set(2053, Calendar.FEBRUARY, 5);
-        Calendar t3 = Calendar.getInstance();
-        t3.set(2053, Calendar.FEBRUARY, 7);
+        Calendar past = CalendarUtil.getCalendarDateFromString("02/01/1953");
+        past.set(Calendar.HOUR_OF_DAY, 12);
 
-        int id1 = manager.addFutureMeeting(contacts, t1);
-        int id2 = manager.addFutureMeeting(contacts, t1);
-        int id3 = manager.addFutureMeeting(contacts, t2);
-        int id4 = manager.addFutureMeeting(contacts, t2);
+        Calendar present = Calendar.getInstance();
+        present.set(Calendar.HOUR_OF_DAY, 12);
 
-        checkMeetingsList(setOf(id1, id2), manager.getFutureMeetingList(t1));
-        checkMeetingsList(setOf(id3, id4), manager.getFutureMeetingList(t2));
-        assertTrue(manager.getFutureMeetingList(t3).isEmpty());
+        Calendar future = CalendarUtil.getCalendarDateFromString("03/01/2153");
+        future.set(Calendar.HOUR_OF_DAY, 12);
+
+        Calendar non_working_day = CalendarUtil.getCalendarDateFromString("05/05/1932");
+
+        int id1 = manager.addFutureMeeting(contacts, future);
+        future.add(Calendar.HOUR_OF_DAY, 1);
+        int id2 = manager.addFutureMeeting(contacts, future);
+
+        int id3 = manager.addFutureMeeting(contacts, present);
+        present.add(Calendar.HOUR_OF_DAY, 1);
+        int id4 = manager.addFutureMeeting(contacts, present);
+        manager.addMeetingNotes(id4, note);
+
+        Contact earl = addThenReturnContact("Earl", note);
+        Contact fred = addThenReturnContact("Fred", note);
+
+        manager.addNewPastMeeting(setOf(earl), past, note);
+        past.add(Calendar.HOUR_OF_DAY, 1);
+        manager.addNewPastMeeting(setOf(fred), past, note);
+
+        int id5 = manager.getPastMeetingList(earl).get(0).getId();
+        int id6 = manager.getPastMeetingList(fred).get(0).getId();
+
+        checkMeetingsList(setOf(id1, id2), manager.getFutureMeetingList(future));
+        checkMeetingsList(setOf(id3, id4), manager.getFutureMeetingList(present));
+        checkMeetingsList(setOf(id5, id6), manager.getFutureMeetingList(past));
+        assertTrue(manager.getFutureMeetingList(non_working_day).isEmpty());
     }
 
     @Test

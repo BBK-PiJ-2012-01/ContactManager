@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static contactsmanager.util.SetUtil.setOf;
+import static contactsmanager.util.CollectionUtil.setOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
