@@ -12,9 +12,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.*;
 
 /**
- * User: Sam Wright
- * Date: 07/01/2013
- * Time: 19:09
+ * Test class for CalendarUtil
  */
 public class CalendarUtilTest {
     private Calendar past, future;

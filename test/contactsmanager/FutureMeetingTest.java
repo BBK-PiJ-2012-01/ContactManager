@@ -4,9 +4,7 @@ import java.util.Calendar;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 24/01/2013
- * Time: 08:31
+ * Test class for FutureMeeting
  */
 public class FutureMeetingTest extends MeetingTest {
 

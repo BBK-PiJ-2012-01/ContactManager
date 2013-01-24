@@ -12,9 +12,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 18:44
+ * Test class for PastMeeting
  */
 public class PastMeetingTest extends MeetingTest {
     private PastMeeting m;

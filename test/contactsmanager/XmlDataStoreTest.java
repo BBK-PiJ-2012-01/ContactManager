@@ -7,9 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * User: Sam Wright
- * Date: 24/01/2013
- * Time: 14:17
+ * Test class for XmlDataStore (containing xml-specific tests).
  */
 public class XmlDataStoreTest {
     private DataStore doc;

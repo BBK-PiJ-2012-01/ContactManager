@@ -7,9 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 16:47
+ * Test class for Contact
  */
 public class ContactTest {
     private Contact c;

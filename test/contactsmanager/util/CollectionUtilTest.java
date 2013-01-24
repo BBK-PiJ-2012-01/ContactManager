@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 07/01/2013
- * Time: 19:33
+ * Test class for CollectionUtil
  */
 public class CollectionUtilTest {
 

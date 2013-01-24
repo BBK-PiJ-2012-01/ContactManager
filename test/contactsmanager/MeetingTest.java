@@ -13,9 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 16:59
+ * Abstract test class for Meeting (inherited by test classes for PastMeeting and FutureMeeting).
  */
 @Ignore
 public abstract class MeetingTest {

@@ -20,9 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * User: Sam Wright
- * Date: 24/01/2013
- * Time: 15:21
+ * Test class for DIFactory
  */
 public class DIFactoryTest {
     private static final String test_config_dir = "test"+File.separator+

@@ -17,9 +17,7 @@ import java.util.Set;
 
 
 /**
- * User: Sam Wright
- * Date: 03/01/2013
- * Time: 19:12
+ * Test class for ContactManager
  */
 public class ContactManagerTest {
     private ContactManager manager;

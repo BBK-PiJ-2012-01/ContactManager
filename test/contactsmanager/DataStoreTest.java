@@ -15,9 +15,7 @@ import java.util.Calendar;
 
 
 /**
- * User: Sam Wright
- * Date: 05/01/2013
- * Time: 20:04
+ * Test class for DataStore
  */
 public class DataStoreTest {
     private DataStore doc;
