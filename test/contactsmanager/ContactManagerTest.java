@@ -32,6 +32,7 @@ public class ContactManagerTest {
     private Contact alice, bob, charlie, dave;
     private final int ALICE_ID = 0, BOB_ID = 1, CHARLIE_ID = 2;
     private final String filename = "ContactManagerTest_output.xml";
+    private final int MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST = 100;
 
     @Before
     public void setUp() throws Exception {
@@ -81,7 +82,7 @@ public class ContactManagerTest {
      */
     private void setDateInPast() {
         date = Calendar.getInstance();
-        date.set(2000, Calendar.APRIL, 13);
+        date.add(Calendar.HOUR_OF_DAY, -1);
     }
 
     /**
@@ -89,7 +90,7 @@ public class ContactManagerTest {
      */
     private void setDateInFuture() {
         date = Calendar.getInstance();
-        date.set(2054, Calendar.DECEMBER, 23);
+        date.add(Calendar.HOUR_OF_DAY, +1);
     }
 
     /**
@@ -141,7 +142,7 @@ public class ContactManagerTest {
         assertNotNull(meeting);
 
         assertEquals(contacts, meeting.getContacts());
-        assertTrue(CalendarUtil.areDatesEqual(date, meeting.getDate()));
+        assertEquals(date, meeting.getDate());
 
         if (meeting_id != -1)
             assertEquals(meeting_id, meeting.getId());
@@ -212,11 +213,32 @@ public class ContactManagerTest {
         manager.addFutureMeeting(contacts, date);
     }
 
+    /**
+     * Adds a PastMeeting to the contact manager and returns the meeting's id.
+     *
+     * The tricky part that this method has to work around is that the only reliable
+     * way of getting the id of a newly added PastMeeting is to add it as a FutureMeeting
+     * (which gives the meeting's id) set to a time 300ms in the future, then wait 300ms
+     * and convert it to a PastMeeting.
+     *
+     * @param contacts the contacts to add to the meeting.
+     * @param note the notes to add to the meeting.
+     * @return the id of the newly-added PastMeeting
+     * @throws Exception if interrupted.
+     */
+    private int addPastMeeting(Set<Contact> contacts, String note) throws Exception {
+        setDateToNow();
+        date.add(Calendar.MILLISECOND, MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
+        int meeting_id = manager.addFutureMeeting(contacts, date);
+        Thread.sleep(MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
+        manager.addMeetingNotes(meeting_id, note);
+        return meeting_id;
+    }
+
     @Test
     public void testGetPastMeeting() throws Exception {
         setDateToNow();
-        meeting_id = manager.addFutureMeeting(contacts, date);
-        manager.addMeetingNotes(meeting_id, note);
+        meeting_id = addPastMeeting(contacts, note);
         PastMeeting meeting = manager.getPastMeeting(meeting_id);
 
         checkMeeting(meeting);
@@ -225,7 +247,7 @@ public class ContactManagerTest {
         try {
             manager.getFutureMeeting(meeting_id);
         } catch (IllegalArgumentException err) {
-            System.out.println("Adding a past meeting doesn't add a future meeting.  Good.");
+            //System.out.println("Adding a past meeting doesn't add a future meeting.  Good.");
             return;
         }
 
@@ -249,7 +271,7 @@ public class ContactManagerTest {
         try {
             manager.getPastMeeting(meeting_id);
         } catch (IllegalArgumentException err) {
-            System.out.println("Adding a future meeting doesn't add a past meeting.  Good.");
+            //System.out.println("Adding a future meeting doesn't add a past meeting.  Good.");
             return;
         }
 
@@ -288,7 +310,7 @@ public class ContactManagerTest {
     public void testMeetingIdUniqueness() throws Exception {
         Set<Integer> meeting_ids = new HashSet<Integer>();
 
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 100; ++i) {
             // Randomly add future and past meetings
 
             if (Math.abs(Math.random()) > 0.5) {
@@ -322,14 +344,9 @@ public class ContactManagerTest {
     @Test
     public void testGetPastMeetingListPerContact() throws Exception {
         setDateToNow();
-        int id1 = manager.addFutureMeeting(setOf(alice, bob, charlie), date);
-        int id2 = manager.addFutureMeeting(setOf(alice, bob), date);
-        int id3 = manager.addFutureMeeting(setOf(alice), date);
-
-        // Convert the meetings into past meetings
-        for (int id : setOf(id1, id2, id3)) {
-            manager.addMeetingNotes(id, note);
-        }
+        int id1 = addPastMeeting(setOf(alice, bob, charlie), note);
+        int id2 = addPastMeeting(setOf(alice, bob), note);
+        int id3 = addPastMeeting(setOf(alice), note);
 
         checkMeetingsList(setOf(id1, id2, id3), manager.getPastMeetingList(alice));
         checkMeetingsList(setOf(id1, id2), manager.getPastMeetingList(bob));
@@ -369,6 +386,7 @@ public class ContactManagerTest {
         testGetPastMeetingListPerContact();
     }
 
+    //TODO: update this after Sergio responds to query
     @Test
     public void testGetFutureMeetingListPerDate() throws Exception {
         Calendar past = CalendarUtil.getCalendarDateFromString("02/01/1953");
@@ -410,7 +428,9 @@ public class ContactManagerTest {
     @Test
     public void testAddMeetingNotesToFutureMeeting() throws Exception {
         setDateToNow();
+        date.add(Calendar.MILLISECOND, MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
         meeting_id = manager.addFutureMeeting(contacts, date);
+        Thread.sleep(MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
         manager.addMeetingNotes(meeting_id, note);
 
         // Check that meeting is now in the past
@@ -420,7 +440,7 @@ public class ContactManagerTest {
         try {
             manager.getFutureMeeting(meeting_id);
         } catch (IllegalArgumentException err) {
-            System.out.println("Adding a note to future meeting made it a past meeting.  Good.");
+            //System.out.println("Adding a note to future meeting made it a past meeting.  Good.");
             return;
         }
 
@@ -429,17 +449,14 @@ public class ContactManagerTest {
 
     @Test
     public void testAddMeetingNotesWithWhitespace() throws Exception {
-        setDateToNow();
-        meeting_id = manager.addFutureMeeting(contacts, date);
-        manager.addMeetingNotes(meeting_id, "\t \nHello\n ");
+        meeting_id = addPastMeeting(contacts, "\t \nHello\n ");
         assertEquals("Hello", manager.getPastMeeting(meeting_id).getNotes());
     }
 
     @Test
     public void testAddMeetingNotesToPastMeeting() throws Exception {
         setDateToNow();
-        meeting_id = manager.addFutureMeeting(contacts, date);
-        manager.addMeetingNotes(meeting_id, "\t \n  Note One.");
+        meeting_id = addPastMeeting(contacts, "\t \n  Note One.");
         manager.addMeetingNotes(meeting_id, "\n Note Two. ");
 
         assertEquals("Note One.\nNote Two.", manager.getPastMeeting(meeting_id).getNotes());
@@ -454,9 +471,7 @@ public class ContactManagerTest {
 
     @Test(expected = NullPointerException.class)
     public void testAddMeetingNotesWithNullNotes() throws Exception {
-        setDateToNow();
-        meeting_id = manager.addFutureMeeting(contacts, date);
-        manager.addMeetingNotes(meeting_id, null);
+        addPastMeeting(contacts, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -535,9 +550,7 @@ public class ContactManagerTest {
         int future_meeting_id = manager.addFutureMeeting(setOf(alice, bob), date);
         FutureMeeting expected_future_meeting = manager.getFutureMeeting(future_meeting_id);
 
-        setDateToNow();
-        int past_meeting_id = manager.addFutureMeeting(setOf(alice, charlie), date);
-        manager.addMeetingNotes(past_meeting_id, note);
+        int past_meeting_id = addPastMeeting(setOf(alice, charlie), note);
         PastMeeting expected_past_meeting = manager.getPastMeeting(past_meeting_id);
 
         // Save to file
@@ -585,6 +598,31 @@ public class ContactManagerTest {
         // Check harold's id is correct (ie. no id has been skipped or used twice)
         assertEquals(setOf(harold), manager.getContacts(3));
         assertEquals(3, harold.getId());
+    }
+
+    @Test
+    public void testLoadThenAddMeeting() throws Exception {
+        // Add a meeting
+        setDateInFuture();
+        int old_meeting_id = manager.addFutureMeeting(setOf(alice), date);
+        Meeting old_meeting = manager.getMeeting(old_meeting_id);
+
+        // Reload manager
+        manager.flush();
+        manager = DIFactory.getInstance().newContactManager(filename);
+
+        // Add another meeting
+        setDateInFuture();
+        int new_meeting_id = manager.addFutureMeeting(setOf(alice, bob), date);
+
+        // Load the old meeting
+        Meeting loaded_old_meeting = manager.getMeeting(old_meeting_id);
+
+        // Check that the new meeting's id is one more than the old meeting's id.
+        assertEquals(old_meeting_id + 1, new_meeting_id);
+
+        // Check the old meeting was properly loaded
+        assertEquals(old_meeting, loaded_old_meeting);
     }
 
     @Test

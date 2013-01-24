@@ -102,10 +102,8 @@ public class CalendarUtilTest {
     public void testDatesComparatorWithTreeMap() throws Exception {
         Calendar t1 = getCalendarDateFromString("13/01/1956");
         Calendar t2 = getCalendarDateFromString("14/01/1956");
-        Calendar t3 = getCalendarDateFromString("15/01/1956");
-        Calendar t4 = getCalendarDateFromString("15/01/1956");
-        t3.set(Calendar.HOUR_OF_DAY, 12);
-        t4.set(Calendar.HOUR_OF_DAY, 13);
+        Calendar t3 = getCalendarFromString("15/01/1956 at 12:00:00.000 GMT");
+        Calendar t4 = getCalendarFromString("15/01/1956 at 12:00:00.001 GMT");
 
         Map<Calendar, Integer> map = new TreeMap<Calendar, Integer>(getDateComparator());
         map.put(t3, 3);
@@ -121,5 +119,21 @@ public class CalendarUtilTest {
 
         assertEquals((Integer) 4, map.get(t3));
         assertEquals((Integer) 4, map.get(t4));
+    }
+
+    @Test
+    public void testDateAndTimeEquals() throws Exception {
+        Calendar t3 = getCalendarFromString("15/01/1956 at 12:00:00.000 GMT");
+        Calendar t4 = getCalendarFromString("15/01/1956 at 12:00:00.000 GMT");
+
+        assertEquals(t3, t4);
+    }
+
+    @Test
+    public void testDateAndTimeNotEquals() throws Exception {
+        Calendar t3 = getCalendarFromString("15/01/1956 at 12:00:00.000 GMT");
+        Calendar t4 = getCalendarFromString("15/01/1956 at 12:00:00.001 GMT");
+
+        assertFalse(t3.equals(t4));
     }
 }

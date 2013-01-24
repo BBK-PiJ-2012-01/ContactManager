@@ -13,7 +13,7 @@ import java.util.Date;
  * (ie. only looks at the year, month and date).
  */
 public class CalendarUtil {
-    static final private SimpleDateFormat FULL_CALENDAR_FORMAT = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm:ss z");
+    static final private SimpleDateFormat FULL_CALENDAR_FORMAT = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm:ss.S z");
     static final private SimpleDateFormat CALENDAR_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
     /**
@@ -77,6 +77,10 @@ public class CalendarUtil {
         Date date = CALENDAR_DATE_FORMAT.parse(date_str);
         Calendar calendar_date = Calendar.getInstance();
         calendar_date.setTime(date);
+        calendar_date.clear(Calendar.HOUR_OF_DAY);
+        calendar_date.clear(Calendar.MINUTE);
+        calendar_date.clear(Calendar.SECOND);
+        calendar_date.clear(Calendar.MILLISECOND);
         return calendar_date;
     }
 
@@ -116,6 +120,7 @@ public class CalendarUtil {
      */
     public static boolean areDatesEqual(Calendar first, Calendar second) {
         return getCalendarDateString(first).equals(getCalendarDateString(second));
+        //return Math.abs(first.getTimeInMillis() - second.getTimeInMillis()) < 3000;
     }
 
     /**
@@ -123,6 +128,12 @@ public class CalendarUtil {
      *
      * ie. two Calendar objects that fall on the same date are considered equal
      * (otherwise the 'Calendar.compareTo' method is used).
+     *
+     * eg1. adding two Calendar objects for the same calendar date but different times
+     *      will cause the last-added to replace the first-added.
+     *
+     * eg2. sorting a list of Calendar objects for the same calendar date but different
+     *      times will not sort those objects chronologically within the shared date.
      *
      * @return a comparator for the date elements of Calendar objects.
      */

@@ -18,7 +18,7 @@ import java.util.Set;
  * Time: 16:59
  */
 @Ignore
-public class AbstractMeetingTest {
+public abstract class AbstractMeetingTest {
     private Meeting m;
     private int id = 3;
     private Calendar date;
@@ -34,8 +34,10 @@ public class AbstractMeetingTest {
         contacts.add(DIFactory.getInstance().newContact(2, "Bob"));
         contacts.add(DIFactory.getInstance().newContact(3, "Charlie"));
 
-        m = new AbstractMeeting(id, date, contacts) {};
+        m = createInstance(id, date, contacts);
     }
+
+    abstract public Meeting createInstance(int id, Calendar date, Set<Contact> contacts);
 
     @Test
     public void testGetId() throws Exception {
@@ -87,79 +89,76 @@ public class AbstractMeetingTest {
 
     @Test
     public void testEquals() throws Exception {
-        Meeting m_copy = new AbstractMeeting(3, date, new HashSet<Contact>(contacts)) {};
+        Meeting m_copy = createInstance(3, date, new HashSet<Contact>(contacts));
 
         assertEquals(m, m_copy);
     }
 
     @Test
     public void testEqualsWithWrongId() throws Exception {
-        Meeting m_copy = new AbstractMeeting(1, date, new HashSet<Contact>(contacts)) {};
+        Meeting m_copy = createInstance(1, date, new HashSet<Contact>(contacts));
 
         assertFalse(m.equals(m_copy));
     }
 
     @Test
-    public void testEqualsWithWrongDate() throws Exception {
-        Meeting m_copy = new AbstractMeeting(3, Calendar.getInstance(), new HashSet<Contact>(contacts)) {};
+    public void testNotEqualsWithWrongDate() throws Exception {
+        Meeting m_copy = createInstance(3, Calendar.getInstance(), new HashSet<Contact>(contacts));
 
         assertFalse(m.equals(m_copy));
     }
 
     @Test
-    public void testEqualsWithWrongTime() throws Exception {
+    public void testNotEqualsWithWrongTime() throws Exception {
         Calendar date_with_different_time = (Calendar) date.clone();
         date_with_different_time.set(Calendar.HOUR_OF_DAY, 0);
 
-        Meeting m_copy = new AbstractMeeting(3, date_with_different_time, new HashSet<Contact>(contacts)) {};
+        Meeting m_copy = createInstance(3, date_with_different_time, new HashSet<Contact>(contacts));
 
-        assertEquals(m, m_copy);
+        assertFalse(m.equals(m_copy));
     }
 
     @Test
     public void testEqualsWithWrongContacts() throws Exception {
-        Meeting m_copy = new AbstractMeeting(3, Calendar.getInstance(), new HashSet<Contact>()) {};
+        Meeting m_copy = createInstance(3, date, new HashSet<Contact>());
 
         assertFalse(m.equals(m_copy));
     }
 
     @Test
     public void testHash() throws Exception {
-        Meeting m_copy = new AbstractMeeting(3, date, new HashSet<Contact>(contacts)) {};
+        Meeting m_copy = createInstance(3, date, new HashSet<Contact>(contacts));
 
         assertEquals(m.hashCode(), m_copy.hashCode());
     }
 
     @Test
     public void testHashWithWrongId() throws Exception {
-        Meeting m_copy = new AbstractMeeting(1, date, new HashSet<Contact>(contacts)) {
-        };
+        Meeting m_copy = createInstance(1, date, new HashSet<Contact>(contacts));
 
         assertTrue(m.hashCode() != m_copy.hashCode());
     }
 
     @Test
-    public void testHashWithWrongDate() throws Exception {
-        Meeting m_copy = new AbstractMeeting(3, Calendar.getInstance(), new HashSet<Contact>(contacts)) {
-        };
+    public void testHashNotEqualsWithWrongDate() throws Exception {
+        Meeting m_copy = createInstance(3, Calendar.getInstance(), new HashSet<Contact>(contacts));
 
         assertTrue(m.hashCode() != m_copy.hashCode());
     }
 
     @Test
-    public void testHashWithWrongTime() throws Exception {
+    public void testHashNotEqualsWithWrongTime() throws Exception {
         Calendar date_with_different_time = (Calendar) date.clone();
         date_with_different_time.set(Calendar.HOUR_OF_DAY, 0);
 
-        Meeting m_copy = new AbstractMeeting(3, date_with_different_time, new HashSet<Contact>(contacts)) {
-        };
+        Meeting m_copy = createInstance(3, date_with_different_time, new HashSet<Contact>(contacts));
 
-        assertTrue(m.hashCode() == m_copy.hashCode());
+        assertTrue(m.hashCode() != m_copy.hashCode());
     }
 
     @Test
     public void testHashWithWrongContacts() throws Exception {
-        Meeting m_copy = new AbstractMeeting(3, Calendar.getInstance(), new HashSet<Contact>()) {};
+        Meeting m_copy = createInstance(3, date, new HashSet<Contact>());
 
         assertTrue(m.hashCode() != m_copy.hashCode());
     }
@@ -169,7 +168,6 @@ public class AbstractMeetingTest {
         Meeting pm = DIFactory.getInstance().newPastMeeting(1, date, contacts, "notes");
         Meeting fm = DIFactory.getInstance().newFutureMeeting(1, date, contacts);
 
-        assertTrue(fm.hashCode() != pm.hashCode());
         assertFalse(pm.equals(fm));
         assertFalse(fm.equals(pm));
     }

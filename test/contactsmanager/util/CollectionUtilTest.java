@@ -2,10 +2,14 @@ package contactsmanager.util;
 
 import org.junit.Test;
 
+import static contactsmanager.util.CollectionUtil.listOf;
 import static contactsmanager.util.CollectionUtil.setOf;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,5 +38,12 @@ public class CollectionUtilTest {
     @Test(expected = AssertionError.class)
     public void testSetOfManyTypes() throws Exception {
         setOf("a", new Object());
+    }
+
+    @Test
+    public void testListOrderMaintained() throws Exception {
+        List<Integer> lst = new LinkedList<Integer>(Arrays.asList(1, 2, 3, 4));
+
+        assertEquals(lst, listOf(1, 2, 3, 4));
     }
 }

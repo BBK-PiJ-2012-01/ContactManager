@@ -236,7 +236,7 @@ public class DataStoreTest {
     public void cleanUp() {
         File file = new File(filename);
         if (file.exists()) {
-            file.delete();
+            //file.delete();
         }
     }
 
