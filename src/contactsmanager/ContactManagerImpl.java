@@ -46,6 +46,8 @@ public class ContactManagerImpl implements ContactManager {
      *
      * Meetings with unknown contacts aren't loaded (with a warning printed to stdout), but won't
      * prevent loading the rest of the meetings.
+     *
+     * If the file couldn't be accessed or the file couldn't be parsed, the file won't be loaded.
      */
     private void loadFromFile() {
         DataStore data = DIFactory.getInstance().newDataStore();
@@ -53,7 +55,11 @@ public class ContactManagerImpl implements ContactManager {
         try {
             data.loadFromFilename(filename);
         } catch (IOException e) {
-            throw new IllegalArgumentException(String.format("File at '%s' was not accessible.", filename), e);
+            e.printStackTrace();
+            return;
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return;
         }
 
         // Load contacts
@@ -94,13 +100,9 @@ public class ContactManagerImpl implements ContactManager {
      * known contacts.
      *
      * @param contacts the set of contacts to check.
-     * @throws NullPointerException if contacts is null.
      * @throws IllegalArgumentException if contacts is empty or contains unknown contacts.
      */
     private void ensureContactsAreKnown(Set<Contact> contacts) {
-        if (contacts == null)
-            throw new NullPointerException("contacts is null");
-
         // Ensure at least one contact will attend
         if (contacts.isEmpty())
             throw new IllegalArgumentException("No contacts at meeting");
@@ -177,6 +179,9 @@ public class ContactManagerImpl implements ContactManager {
     public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
         if (date == null)
             throw new NullPointerException("date is null");
+
+        if (contacts == null)
+            throw new NullPointerException(("contacts is null"));
 
         // Ensure date is in future (inclusive of today)
         if (!CalendarUtil.isDateInFuture(date))
@@ -287,6 +292,9 @@ public class ContactManagerImpl implements ContactManager {
     public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
         if (date == null)
             throw new NullPointerException("date is null");
+
+        if (contacts == null)
+            throw new NullPointerException(("contacts is null"));
 
         if (text == null)
             throw new NullPointerException("text is null");
@@ -411,6 +419,7 @@ public class ContactManagerImpl implements ContactManager {
             data.writeToFilename(filename);
         } catch (IOException e) {
             System.out.println("Error! Couldn't write to filename: " + filename);
+            e.printStackTrace();
         }
     }
 }

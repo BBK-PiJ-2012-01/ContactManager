@@ -6,12 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static contactsmanager.util.CollectionUtil.setOf;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +30,7 @@ public class ContactManagerTest {
     private Contact alice, bob, charlie, dave;
     private final int ALICE_ID = 0, BOB_ID = 1, CHARLIE_ID = 2;
     private final String filename = "ContactManagerTest_output.xml";
+    private final String default_filename = "contacts.txt";
     private final int MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST = 50;
 
     @Before
@@ -156,7 +155,6 @@ public class ContactManagerTest {
         manager.addNewPastMeeting(contacts, date, note);
     }
 
-    // TODO: This behaviour, whilst expected, is not prescribed in the interface!
     @Test(expected = IllegalArgumentException.class)
     public void testAddPastMeetingInFuture() throws Exception {
         setDateInFuture();
@@ -211,6 +209,16 @@ public class ContactManagerTest {
         setDateInFuture();
         contacts.add(DIFactory.getInstance().newContact(4, "Stranger"));
         manager.addFutureMeeting(contacts, date);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddFutureMeetingWithNullContacts() throws Exception {
+        manager.addFutureMeeting(null, date);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddFutureMeetingWithNullDate() throws Exception {
+        manager.addFutureMeeting(contacts, null);
     }
 
     /**
@@ -375,6 +383,16 @@ public class ContactManagerTest {
         assertTrue(manager.getPastMeetingList(dave).isEmpty());
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testGetFutureMeetingListOfNull() throws Exception {
+        manager.getFutureMeetingList((Contact) null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetPastMeetingListOfNull() throws Exception {
+        manager.getPastMeetingList(null);
+    }
+
     @Test
     public void testMeetingListsPerContactAreUnique() throws Exception {
         testGetPastMeetingListPerContact();
@@ -421,6 +439,11 @@ public class ContactManagerTest {
         checkMeetingsList(setOf(id3, id4), manager.getFutureMeetingList(present));
         checkMeetingsList(setOf(id5, id6), manager.getFutureMeetingList(past));
         assertTrue(manager.getFutureMeetingList(non_working_day).isEmpty());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetFutureMeetingListOfNullDate() throws Exception {
+        manager.getFutureMeetingList((Calendar) null);
     }
 
     @Test
@@ -669,12 +692,77 @@ public class ContactManagerTest {
         assertEquals(good_past_meeting, manager.getPastMeetingList(alice).get(0));
     }
 
+    @Test
+    public void testDefaultSaveFilename() throws Exception {
+        // Create manager without specifying filename
+        manager = DIFactory.getInstance().newContactManager();
+        Contact andy = addThenReturnContact("Andy", "completely unique note...");
+
+        // Flush
+        manager.flush();
+
+        // Check file at default_filename exists
+        File output_file = new File(default_filename);
+        assertTrue(output_file.exists() && output_file.isFile());
+
+        // Load from default filename
+        manager = DIFactory.getInstance().newContactManager(default_filename);
+
+        // Check andy was loaded
+        assertEquals(setOf(andy), manager.getContacts(andy.getId()));
+    }
+
+    @Test
+    public void testDefaultLoadFilename() throws Exception {
+        // Save to default filename
+        manager = DIFactory.getInstance().newContactManager(default_filename);
+        Contact andy = addThenReturnContact("Andy", "completely unique note...");
+
+        // Flush
+        manager.flush();
+
+        // Load (without specifying filename)
+        manager = DIFactory.getInstance().newContactManager();
+
+        // Check andy was loaded
+        assertEquals(setOf(andy), manager.getContacts(andy.getId()));
+    }
+
+    @Test()
+    public void testLoadFromNonexistentFile() throws Exception {
+        manager = DIFactory.getInstance().newContactManager("does_not_exist.txt");
+    }
+
+    @Test()
+    public void testLoadFromBadFile() throws Exception {
+        FileWriter out = new FileWriter(filename);
+        out.write("this should make no sense to the manager:\\}[';:_-+=");
+        out.close();
+
+        manager = DIFactory.getInstance().newContactManager(filename);
+    }
+
+    @Test()
+    public void testSaveToBadFilename() throws Exception {
+        String bad_filename = "nonexistent_folder/file.txt";
+        manager = DIFactory.getInstance().newContactManager(bad_filename);
+
+        // Interface prohibits throwing an exception if saving fails.
+        // Instead it should fail silently
+        File file = new File(bad_filename);
+        assertFalse(file.exists());
+    }
+
 
     @After
     public void cleanUp() {
         File file = new File(filename);
         if (file.exists()) {
-            file.delete();
+            assertTrue(file.delete());
+        }
+        file = new File(default_filename);
+        if (file.exists()) {
+            assertTrue(file.delete());
         }
     }
 }

@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * Date: 03/01/2013
  * Time: 18:44
  */
-public class PastMeetingTest extends AbstractMeetingTest {
+public class PastMeetingTest extends MeetingTest {
     private PastMeeting m;
     private final String notes = "Initial Note ";
     private Calendar date;

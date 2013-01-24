@@ -18,9 +18,9 @@ import java.util.Set;
  * Time: 16:59
  */
 @Ignore
-public abstract class AbstractMeetingTest {
+public abstract class MeetingTest {
     private Meeting m;
-    private int id = 3;
+    private final int id = 3;
     private Calendar date;
     private Set<Contact> contacts;
 

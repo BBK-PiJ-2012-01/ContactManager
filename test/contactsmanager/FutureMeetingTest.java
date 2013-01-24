@@ -8,7 +8,7 @@ import java.util.Set;
  * Date: 24/01/2013
  * Time: 08:31
  */
-public class FutureMeetingTest extends AbstractMeetingTest {
+public class FutureMeetingTest extends MeetingTest {
 
     @Override
     public Meeting createInstance(int id, Calendar date, Set<Contact> contacts) {

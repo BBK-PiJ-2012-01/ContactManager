@@ -2,18 +2,20 @@ package contactsmanager;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Calendar;
 import java.util.Properties;
 import java.util.Set;
 
 /**
- * User: Sam Wright
- * Date: 24/01/2013
- * Time: 08:37
+ * Dependency Injection factory singleton class.
+ *
+ * Implementations are matched to interfaces in the "config.ini" file, which this class interprets
+ * thus decoupling the two in the code.
  */
 public class DIFactory {
     // Singleton
-    static final DIFactory instance;
+    static final private DIFactory instance;
     static {
         instance = new DIFactory();
     }
@@ -31,14 +33,16 @@ public class DIFactory {
     private final Class<?>[] contact_manager_filename_constructor = new Class<?>[]{String.class};
 
     private Object newInstance(Class<?> clazz, Class<?>[] parameter_types, Object... parameters) {
-//        Class<?>[] parameter_types = new Class<?>[parameters.length];
-//        for (int i = 0; i < parameters.length; ++i) {
-//            parameter_types[i] = parameters[i].getClass();
-//        }
 
         try {
             return clazz.getConstructor(parameter_types).newInstance(parameters);
-        } catch (Exception e) {
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }

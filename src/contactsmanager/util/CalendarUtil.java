@@ -13,8 +13,31 @@ import java.util.Date;
  * (ie. only looks at the year, month and date).
  */
 public class CalendarUtil {
-    static final private SimpleDateFormat FULL_CALENDAR_FORMAT = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm:ss.S z");
-    static final private SimpleDateFormat CALENDAR_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+    /**
+     * Gets a SimpleDateFormat object for "dd/MM/yyyy 'at' HH:mm:ss.S z"
+     *
+     * Why not have a single static private instance?  FindBugs says that DateFormats are
+     * inherently unsafe for multithreaded use.  By using a getter, we are removing the
+     * potential for something going wrong if this ever became multithreaded.
+     *
+     * @return a SimpleDateFormat object for "dd/MM/yyyy 'at' HH:mm:ss.S z"
+     */
+    static private SimpleDateFormat getFullCalendarFormat() {
+        return new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm:ss.S z");
+    }
+
+    /**
+     * Gets a SimpleDateFormat object for "dd/MM/yyyy"
+     *
+     * Why not have a single static private instance?  FindBugs says that DateFormats are
+     * inherently unsafe for multithreaded use.  By using a getter, we are removing the
+     * potential for something going wrong if this ever became multithreaded.
+     *
+     * @return a SimpleDateFormat object for "dd/MM/yyyy"
+     */
+    static private SimpleDateFormat getSimpleCalendarFormat() {
+        return new SimpleDateFormat("dd/MM/yyyy");
+    }
 
     /**
      * Returns true if the given Calendar date (eg. "15/01/1956 at 12:00:00.000 GMT")
@@ -50,7 +73,7 @@ public class CalendarUtil {
      * @return the string representation of the given date in "dd/MM/yyyy" format.
      */
     public static String getCalendarDateString(Calendar date) {
-        return CALENDAR_DATE_FORMAT.format(date.getTime());
+        return getSimpleCalendarFormat().format(date.getTime());
     }
 
     /**
@@ -63,7 +86,7 @@ public class CalendarUtil {
      * @throws ParseException if the string was not formatted as "dd/MM/yyyy".
      */
     public static Calendar getCalendarDateFromString(String date_str) throws ParseException {
-        Date date = CALENDAR_DATE_FORMAT.parse(date_str);
+        Date date = getSimpleCalendarFormat().parse(date_str);
         Calendar calendar_date = Calendar.getInstance();
         calendar_date.setTime(date);
         calendar_date.clear(Calendar.HOUR_OF_DAY);
@@ -81,7 +104,7 @@ public class CalendarUtil {
      * @return the string representation of the given date in "dd/MM/yyyy 'at' HH:mm:ss z" format.
      */
     public static String getCalendarString(Calendar date) {
-        return FULL_CALENDAR_FORMAT.format(date.getTime());
+        return getFullCalendarFormat().format(date.getTime());
     }
 
     /**
@@ -93,7 +116,7 @@ public class CalendarUtil {
      * @throws ParseException if the string was not formatted as "dd/MM/yyyy 'at' HH:mm:ss z".
      */
     public static Calendar getCalendarFromString(String date_str) throws ParseException {
-        Date date = FULL_CALENDAR_FORMAT.parse(date_str);
+        Date date = getFullCalendarFormat().parse(date_str);
         Calendar calendar_date = Calendar.getInstance();
         calendar_date.setTime(date);
         return calendar_date;

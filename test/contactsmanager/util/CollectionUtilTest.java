@@ -30,6 +30,7 @@ public class CollectionUtilTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testSetOfNothing() throws Exception {
         Set empty = setOf();
         assertTrue(empty.isEmpty());

@@ -24,33 +24,27 @@ public class DataStoreTest {
     private Contact alice, bob, charlie;
     private FutureMeeting fm1, fm2, fm3;
     private PastMeeting pm1, pm2, pm3;
-    private final String filename = "XmlDataStoreTest_output.xml";
-    private final String notes1 = "Notes 1";
-    private final String notes2 = "Notes 2";
-    private final String notes3 = "Notes 3";
-    private final String xml_file_dir = "test" + File.separator +
-                                    "contactsmanager" + File.separator +
-                                    "xml_test_files" + File.separator;
+    private final String filename = "DataStoreTest_output.xml";
 
     @Before
     public void setUp() throws Exception {
-        doc = new XmlDataStore();
+        doc = DIFactory.getInstance().newDataStore();
 
         alice = new ContactImpl(1, "Alice");
         bob = new ContactImpl(2, "Bob");
         charlie = new ContactImpl(3, "Charlie");
 
-        alice.addNotes(notes1);
-        bob.addNotes(notes2);
-        charlie.addNotes(notes3);
+        alice.addNotes("Note 1");
+        bob.addNotes("Note 2");
+        charlie.addNotes("Note 3");
 
         fm1 = DIFactory.getInstance().newFutureMeeting(1, getFutureDate(1), setOf(alice, bob, charlie));
         fm2 = DIFactory.getInstance().newFutureMeeting(2, getFutureDate(2), setOf(alice, bob));
         fm3 = DIFactory.getInstance().newFutureMeeting(3, getFutureDate(3), setOf(alice));
 
-        pm1 = DIFactory.getInstance().newPastMeeting(4, getPastDate(1), setOf(alice, bob, charlie), notes1);
-        pm2 = DIFactory.getInstance().newPastMeeting(5, getPastDate(2), setOf(alice, bob), notes2);
-        pm3 = DIFactory.getInstance().newPastMeeting(6, getPastDate(3), setOf(alice), notes3);
+        pm1 = DIFactory.getInstance().newPastMeeting(4, getPastDate(1), setOf(alice, bob, charlie), "Meeting note 1");
+        pm2 = DIFactory.getInstance().newPastMeeting(5, getPastDate(2), setOf(alice, bob), "Meeting note 2");
+        pm3 = DIFactory.getInstance().newPastMeeting(6, getPastDate(3), setOf(alice), "Meeting note 3");
     }
 
     /**
@@ -121,7 +115,7 @@ public class DataStoreTest {
         doc.writeToFilename(filename);
 
         // Recreate doc and load from filename
-        doc = new XmlDataStore();
+        doc = DIFactory.getInstance().newDataStore();
         doc.loadFromFilename(filename);
     }
 
@@ -156,24 +150,24 @@ public class DataStoreTest {
 
     @Test(expected = IOException.class)
     public void testWriteToBadFilename() throws Exception {
-        doc.writeToFilename(xml_file_dir + "\\/\\filename");
+        doc.writeToFilename("\\/\\filename");
     }
 
     @Test
-    public void testXmlInjectionSafety() throws Exception {
-        String xml_injection_str = "Jane/>&\"\\\"";
-        Contact xml_jane = new ContactImpl(5, xml_injection_str);
-        xml_jane.addNotes("notes");
+    public void testInjectionSafety() throws Exception {
+        String injection_str = "Jane/>&\"\\\"";
+        Contact injection_jane = new ContactImpl(5, injection_str);
+        injection_jane.addNotes("notes");
 
-        doc.setContacts(setOf(xml_jane));
+        doc.setContacts(setOf(injection_jane));
 
         doc.writeToFilename(filename);
-        doc = new XmlDataStore();
+        doc = DIFactory.getInstance().newDataStore();
         doc.loadFromFilename(filename);
 
-        Contact loaded_xml_jane = (Contact) doc.getContacts().toArray()[0];
+        Contact loaded_injection_jane = (Contact) doc.getContacts().toArray()[0];
 
-        assertEquals(xml_jane, loaded_xml_jane);
+        assertEquals(injection_jane, loaded_injection_jane);
     }
 
     @Test
@@ -183,7 +177,7 @@ public class DataStoreTest {
         doc.setContacts(setOf(nemo));
 
         doc.writeToFilename(filename);
-        doc = new XmlDataStore();
+        doc = DIFactory.getInstance().newDataStore();
         doc.loadFromFilename(filename);
 
         Contact loaded_nemo = (Contact) doc.getContacts().toArray()[0];
@@ -197,46 +191,11 @@ public class DataStoreTest {
         assertTrue(setOf(pm1, pm2, pm3).containsAll(doc.getPastMeetings()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testLoadMalformedDate() throws Exception {
-        doc.loadFromFilename(xml_file_dir + "malformed_date.xml");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testLoadMalformedId() throws Exception {
-        doc.loadFromFilename(xml_file_dir + "malformed_id.xml");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testLoadMalformedString() throws Exception {
-        doc.loadFromFilename(xml_file_dir + "malformed_string.xml");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testLoadContactWithTooManyNames() throws Exception {
-        doc.loadFromFilename(xml_file_dir + "too_many_names.xml");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testLoadMalformedTag() throws Exception {
-        doc.loadFromFilename(xml_file_dir + "malformed_tag.xml");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testLoadWrongTag() throws Exception {
-        doc.loadFromFilename(xml_file_dir + "wrong_tag.xml");
-    }
-
-    @Test(expected = IOException.class)
-    public void testLoadFromBadFile() throws Exception {
-        doc.loadFromFilename(xml_file_dir + "this_file_doesnt_exist.xml");
-    }
-
     @After
     public void cleanUp() {
         File file = new File(filename);
         if (file.exists()) {
-            //file.delete();
+            assertTrue(file.delete());
         }
     }
 
