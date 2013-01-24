@@ -14,10 +14,12 @@ public class ContactManagerImpl implements ContactManager {
     private final String filename;
     private int last_contact_id = -1;
     private int last_meeting_id = -1;
-    private final Map<Integer,Contact> known_contacts = new HashMap<Integer, Contact>();
+    private final Map<Integer,Contact> contacts_by_id = new HashMap<Integer, Contact>();
+    private final Map<Contact, Set<PastMeeting>> past_meetings_by_contact = new HashMap<Contact, Set<PastMeeting>>();
+    private final Map<Contact, Set<Meeting>> future_meetings_by_contact = new HashMap<Contact, Set<Meeting>>();
     private final Map<Integer, PastMeeting> past_meetings_by_id = new HashMap<Integer, PastMeeting>();
     private final Map<Integer, FutureMeeting> future_meetings_by_id = new HashMap<Integer, FutureMeeting>();
-    private final Map<Calendar, List<Meeting>> meetings_by_date;
+    private final Map<Calendar, Set<Meeting>> meetings_by_date;
 
     /**
      * Create a new ContactManagerImpl object using the default filename ("contacts.txt") for storage.
@@ -35,14 +37,14 @@ public class ContactManagerImpl implements ContactManager {
      */
     public ContactManagerImpl(String filename) {
         this.filename = filename;
-        meetings_by_date = new TreeMap<Calendar, List<Meeting>>(CalendarUtil.getDateComparator());
+        meetings_by_date = new TreeMap<Calendar, Set<Meeting>>(CalendarUtil.getCalendarDateComparator());
 
         if (new File(filename).isFile())
             loadFromFile();
     }
 
     /**
-     * Loads 'known_contacts', 'past_meetings', and 'future_meetings' from the xml file at 'filename'.
+     * Loads contacts, past and future meetings from the xml file at 'filename'.
      *
      * Meetings with unknown contacts aren't loaded (with a warning printed to stdout), but won't
      * prevent loading the rest of the meetings.
@@ -52,6 +54,7 @@ public class ContactManagerImpl implements ContactManager {
     private void loadFromFile() {
         DataStore data = DIFactory.getInstance().newDataStore();
 
+        // Load and parse file.  If either fails, load nothing (but no exceptions are thrown)
         try {
             data.loadFromFilename(filename);
         } catch (IOException e) {
@@ -64,13 +67,8 @@ public class ContactManagerImpl implements ContactManager {
 
         // Load contacts
         for (Contact contact : data.getContacts()) {
-            known_contacts.put(contact.getId(), contact);
+            addContact(contact);
         }
-
-        // Update the 'last_contact_id' so newly-created contacts' ids don't clash with those just loaded.
-        if (!known_contacts.isEmpty())
-            last_contact_id = Math.max(last_contact_id, Collections.max(known_contacts.keySet()));
-
 
         // Load past meetings
         for (PastMeeting meeting : data.getPastMeetings()) {
@@ -108,7 +106,7 @@ public class ContactManagerImpl implements ContactManager {
             throw new IllegalArgumentException("No contacts at meeting");
 
         Set<Contact> unknown_contacts = new HashSet<Contact>(contacts);
-        unknown_contacts.removeAll(known_contacts.values());
+        unknown_contacts.removeAll(contacts_by_id.values());
 
         if (!unknown_contacts.isEmpty())
             throw new IllegalArgumentException("Unknown contacts in meeting: " + unknown_contacts);
@@ -126,7 +124,7 @@ public class ContactManagerImpl implements ContactManager {
         if (contact == null)
             throw new NullPointerException("contact is null");
 
-        if (!known_contacts.containsValue(contact))
+        if (!contacts_by_id.containsValue(contact))
             throw new IllegalArgumentException("contact '" + contact.getName() + "' does is not known");
     }
 
@@ -141,31 +139,66 @@ public class ContactManagerImpl implements ContactManager {
         // Ensure the meeting's contacts are valid
         ensureContactsAreKnown(meeting.getContacts());
 
-        // Add the meeting to the correct data structure
+        // Add the meeting to the correct data structures
         if (meeting instanceof FutureMeeting) {
+
             future_meetings_by_id.put(meeting.getId(), (FutureMeeting) meeting);
+
+            for (Contact contact : meeting.getContacts()) {
+                future_meetings_by_contact.get(contact).add(meeting);
+            }
+
         } else if (meeting instanceof PastMeeting) {
+
             past_meetings_by_id.put(meeting.getId(), (PastMeeting) meeting);
+
+            for (Contact contact : meeting.getContacts()) {
+                past_meetings_by_contact.get(contact).add((PastMeeting) meeting);
+            }
+
         } else {
             throw new IllegalArgumentException("Given meeting was neither a PastMeeting nor a FutureMeeting");
         }
 
-        // Add the meeting 'meetings_by_date':
+        // ----- Add the meeting to 'meetings_by_date' -----:
         // Get the meetings list for the meeting's date
-        List<Meeting> meetings_on_date = meetings_by_date.get(meeting.getDate());
+        Set<Meeting> meetings_on_date = meetings_by_date.get(meeting.getDate());
 
         if (meetings_on_date == null) {
             // If no meetings have previously been added for this date,
-            // register a new list for this date
-            meetings_on_date = new LinkedList<Meeting>();
+            // register a new set for this date (which will be kept naturally sorted due to the comparator)
+            meetings_on_date = new TreeSet<Meeting>(CalendarUtil.getMeetingDateComparator());
             meetings_by_date.put(meeting.getDate(), meetings_on_date);
         }
 
-        // Add the given meeting to the list of meetings for the meeting's date
+        // Add the given meeting to the set of meetings for the meeting's date
         meetings_on_date.add(meeting);
 
         // Update 'last_meeting_id'
         last_meeting_id = Math.max(last_meeting_id, meeting.getId());
+    }
+
+    /**
+     * Adds the given contact to the manager's internal data structures, and updates last_contact_id
+     * @param contact the contact to add to the manager.
+     */
+    private void addContact(Contact contact) {
+        // Add to contacts_by_id
+        contacts_by_id.put(contact.getId(), contact);
+
+        // Create an empty set of meetings for this contact, which is kept sorted with a comparator
+        past_meetings_by_contact.put(contact, new TreeSet<PastMeeting>(CalendarUtil.getMeetingDateComparator()));
+        future_meetings_by_contact.put(contact, new TreeSet<Meeting>(CalendarUtil.getMeetingDateComparator()));
+
+        // Update last_contact_id
+        last_contact_id = Math.max(last_contact_id, contact.getId());
+    }
+
+    /**
+     * Returns the next available contact id.  NB this doesn't change last_meeting_id.
+     */
+    private int getNextContactId() {
+        return last_contact_id + 1;
     }
 
     /**
@@ -226,35 +259,11 @@ public class ContactManagerImpl implements ContactManager {
         }
     }
 
-    /**
-     * Sorts the given list of meetings by date (chronologically).
-     *
-     * @param meetings_list the list of meetings to sort chronologically.
-     */
-    private void sortMeetingListChronologically(List<? extends Meeting> meetings_list) {
-        Comparator<Meeting> meeting_date_comparator = new Comparator<Meeting>() {
-            @Override
-            public int compare(Meeting o1, Meeting o2) {
-                return o1.getDate().compareTo(o2.getDate());
-            }
-        };
-
-        Collections.sort(meetings_list, meeting_date_comparator);
-    }
-
     @Override
     public List<Meeting> getFutureMeetingList(Contact contact) {
         ensureContactIsKnown(contact);
 
-        List<Meeting> meetings_with_contact = new LinkedList<Meeting>();
-        for (Meeting meeting : future_meetings_by_id.values()) {
-            if (meeting.getContacts().contains(contact)) {
-                meetings_with_contact.add(meeting);
-            }
-        }
-
-        sortMeetingListChronologically(meetings_with_contact);
-        return meetings_with_contact;
+        return new LinkedList<Meeting>(future_meetings_by_contact.get(contact));
     }
 
     @Override
@@ -263,29 +272,19 @@ public class ContactManagerImpl implements ContactManager {
         if (date == null)
             throw new NullPointerException("date is null");
 
-        List<Meeting> meetings_on_date = meetings_by_date.get(date);
+        Set<Meeting> meetings_on_date = meetings_by_date.get(date);
         if (meetings_on_date == null) {
-            meetings_on_date = new LinkedList<Meeting>();
-        } else {
-            sortMeetingListChronologically(meetings_on_date);
+            meetings_on_date = new TreeSet<Meeting>();
         }
 
-        return meetings_on_date;
+        return new LinkedList<Meeting>(meetings_on_date);
     }
 
     @Override
     public List<PastMeeting> getPastMeetingList(Contact contact) {
         ensureContactIsKnown(contact);
 
-        List<PastMeeting> meetings_with_contact = new LinkedList<PastMeeting>();
-        for (PastMeeting meeting : past_meetings_by_id.values()) {
-            if (meeting.getContacts().contains(contact)) {
-                meetings_with_contact.add(meeting);
-            }
-        }
-
-        sortMeetingListChronologically(meetings_with_contact);
-        return meetings_with_contact;
+        return new LinkedList<PastMeeting>(past_meetings_by_contact.get(contact));
     }
 
     @Override
@@ -324,8 +323,25 @@ public class ContactManagerImpl implements ContactManager {
         // Recreate as past meeting
         PastMeeting new_meeting = DIFactory.getInstance().newPastMeeting(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);
 
-        // Put in past_meetings_by_id (if meeting is already in past_meetings_by_id, this overwrites it).
-        past_meetings_by_id.put(meeting.getId(), new_meeting);
+        // Remove old meeting from data structures
+        meetings_by_date.get(meeting.getDate()).remove(meeting);
+
+        if (meeting instanceof PastMeeting) {
+
+            for (Contact contact : meeting.getContacts()) {
+                past_meetings_by_contact.get(contact).remove(meeting);
+            }
+
+        } else if (meeting instanceof FutureMeeting) {
+
+            for (Contact contact : meeting.getContacts()) {
+                future_meetings_by_contact.get(contact).remove(meeting);
+            }
+
+        }
+
+        // Add the new meeting
+        addMeeting(new_meeting);
     }
 
     @Override
@@ -366,13 +382,12 @@ public class ContactManagerImpl implements ContactManager {
         if (notes == null)
             throw new NullPointerException("notes is null");
 
-        int id = ++last_contact_id;
-        Contact contact = DIFactory.getInstance().newContact(id, name);
+        Contact contact = DIFactory.getInstance().newContact(getNextContactId(), name);
 
         // Add notes to contact.  It will automatically remove whitespace.
         contact.addNotes(notes);
 
-        known_contacts.put(id, contact);
+        addContact(contact);
     }
 
     @Override
@@ -380,7 +395,7 @@ public class ContactManagerImpl implements ContactManager {
         Set<Contact> contacts = new HashSet<Contact>();
 
         for (int id : ids) {
-            Contact contact = known_contacts.get(id);
+            Contact contact = contacts_by_id.get(id);
 
             // Check that contact is known
             if (contact == null)
@@ -396,7 +411,7 @@ public class ContactManagerImpl implements ContactManager {
     public Set<Contact> getContacts(String name) {
         Set<Contact> matching_contacts = new HashSet<Contact>();
 
-        for (Contact contact : known_contacts.values()) {
+        for (Contact contact : contacts_by_id.values()) {
             if (contact.getName().contains(name)) {
                 matching_contacts.add(contact);
             }
@@ -410,7 +425,7 @@ public class ContactManagerImpl implements ContactManager {
         DataStore data = DIFactory.getInstance().newDataStore();
 
         // Put data in data store
-        data.setContacts(known_contacts.values());
+        data.setContacts(contacts_by_id.values());
         data.setFutureMeetings(future_meetings_by_id.values());
         data.setPastMeetings(past_meetings_by_id.values());
 

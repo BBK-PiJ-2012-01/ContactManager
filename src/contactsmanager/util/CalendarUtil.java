@@ -1,5 +1,7 @@
 package contactsmanager.util;
 
+import contactsmanager.Meeting;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -148,7 +150,7 @@ public class CalendarUtil {
      *
      * @return a comparator for the date elements of Calendar objects.
      */
-    public static Comparator<Calendar> getDateComparator() {
+    public static Comparator<Calendar> getCalendarDateComparator() {
         return new Comparator<Calendar>() {
             @Override
             public int compare(Calendar o1, Calendar o2) {
@@ -161,5 +163,26 @@ public class CalendarUtil {
         };
     }
 
+    /**
+     * Returns a comparator that compares the dates of Meeting objects (to millisecond precision).
+     * If the meetings occur at the exact same time, the comparison will only return 0 if the meeting
+     * ids are the same (thus preventing different meetings that occur at the same time from being
+     * considered the same.
+     *
+     * @return a chronological comparator for meetings.
+     */
+    public static Comparator<Meeting> getMeetingDateComparator() {
+        return new Comparator<Meeting>() {
+            @Override
+            public int compare(Meeting o1, Meeting o2) {
+                int n = o1.getDate().compareTo(o2.getDate());
+                if (n == 0) {
+                    return o1.getId() - o2.getId();
+                } else {
+                    return n;
+                }
+            }
+        };
+    }
 
 }

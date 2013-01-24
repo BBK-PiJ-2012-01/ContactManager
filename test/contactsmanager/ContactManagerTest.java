@@ -404,7 +404,6 @@ public class ContactManagerTest {
         testGetPastMeetingListPerContact();
     }
 
-    //TODO: update this after Sergio responds to query
     @Test
     public void testGetFutureMeetingListPerDate() throws Exception {
         Calendar past = CalendarUtil.getCalendarDateFromString("02/01/1953");

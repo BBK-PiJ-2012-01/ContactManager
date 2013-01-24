@@ -81,7 +81,7 @@ public class CalendarUtilTest {
         Calendar t3 = getCalendarDateFromString("15/01/1956");
 
         List<Calendar> sorted_list = listOf(t3,t1,t2);
-        Collections.sort(sorted_list, getDateComparator());
+        Collections.sort(sorted_list, getCalendarDateComparator());
 
         assertEquals(listOf(t1, t2, t3), sorted_list);
     }
@@ -93,7 +93,7 @@ public class CalendarUtilTest {
         Calendar t3 = getCalendarFromString("15/01/1956 at 12:00:00.000 GMT");
         Calendar t4 = getCalendarFromString("15/01/1956 at 12:00:00.001 GMT");
 
-        Map<Calendar, Integer> map = new TreeMap<Calendar, Integer>(getDateComparator());
+        Map<Calendar, Integer> map = new TreeMap<Calendar, Integer>(getCalendarDateComparator());
         map.put(t3, 3);
         map.put(t1, 1);
         map.put(t2, 2);
