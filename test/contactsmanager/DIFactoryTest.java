@@ -151,4 +151,11 @@ public class DIFactoryTest {
         copyFile(test_config_dir + "Contact_interface_doesnt_exist.ini", config_filename);
         forceReloadFactory();
     }
+
+    @Test(expected = RuntimeException.class)
+    public void testWhereImplDoesntImplementInterface() throws Exception {
+        copyFile(test_config_dir + "Contact_implementation_doesnt_implement_Contact.ini", config_filename);
+        forceReloadFactory();
+        testNewContact();
+    }
 }
