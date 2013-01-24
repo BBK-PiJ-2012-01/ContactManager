@@ -32,7 +32,7 @@ public class ContactManagerTest {
     private Contact alice, bob, charlie, dave;
     private final int ALICE_ID = 0, BOB_ID = 1, CHARLIE_ID = 2;
     private final String filename = "ContactManagerTest_output.xml";
-    private final int MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST = 100;
+    private final int MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST = 50;
 
     @Before
     public void setUp() throws Exception {
@@ -230,7 +230,7 @@ public class ContactManagerTest {
         setDateToNow();
         date.add(Calendar.MILLISECOND, MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
         int meeting_id = manager.addFutureMeeting(contacts, date);
-        Thread.sleep(MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
+        Thread.sleep(MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST * 2);
         manager.addMeetingNotes(meeting_id, note);
         return meeting_id;
     }
@@ -393,7 +393,7 @@ public class ContactManagerTest {
         past.set(Calendar.HOUR_OF_DAY, 12);
 
         Calendar present = Calendar.getInstance();
-        present.set(Calendar.HOUR_OF_DAY, 12);
+        present.add(Calendar.MINUTE, 1);
 
         Calendar future = CalendarUtil.getCalendarDateFromString("03/01/2153");
         future.set(Calendar.HOUR_OF_DAY, 12);
@@ -405,9 +405,7 @@ public class ContactManagerTest {
         int id2 = manager.addFutureMeeting(contacts, future);
 
         int id3 = manager.addFutureMeeting(contacts, present);
-        present.add(Calendar.HOUR_OF_DAY, 1);
-        int id4 = manager.addFutureMeeting(contacts, present);
-        manager.addMeetingNotes(id4, note);
+        int id4 = addPastMeeting(contacts, note);
 
         Contact earl = addThenReturnContact("Earl", note);
         Contact fred = addThenReturnContact("Fred", note);
@@ -430,7 +428,7 @@ public class ContactManagerTest {
         setDateToNow();
         date.add(Calendar.MILLISECOND, MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
         meeting_id = manager.addFutureMeeting(contacts, date);
-        Thread.sleep(MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST);
+        Thread.sleep(MILLISECONDS_FOR_FUTURE_TO_BECOME_PAST * 2);
         manager.addMeetingNotes(meeting_id, note);
 
         // Check that meeting is now in the past

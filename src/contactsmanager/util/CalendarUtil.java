@@ -17,38 +17,27 @@ public class CalendarUtil {
     static final private SimpleDateFormat CALENDAR_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
     /**
-     * Returns true if the given Calendar date (eg. 1st of January, 2012)
-     * is in the future (where today is considered both in the future
-     * and in the past).  Ie. It ignores the time element of the Calendar object.
+     * Returns true if the given Calendar date (eg. "15/01/1956 at 12:00:00.000 GMT")
+     * is in the future (ie. after this exact moment in time, with millisecond resolution).
      *
      * @param date the Calendar object to check
-     * @return whether the given Calendar's date is in the future (inclusive of today)
+     * @return whether the given Calendar is in the future.
      */
     public static boolean isDateInFuture(Calendar date) {
-        Calendar start_of_today = Calendar.getInstance();
-        start_of_today.set(Calendar.HOUR_OF_DAY, 0);
-        start_of_today.set(Calendar.MINUTE, 0);
-        start_of_today.set(Calendar.SECOND, 0);
-
-        return date.after(start_of_today);
+        Calendar now = Calendar.getInstance();
+        return date.after(now);
     }
 
     /**
-     * Returns true if the given Calendar date (eg. 1st of January, 2012)
-     * is in the past (where today is considered both in the future
-     * and in the past).  Ie. It ignores the time element of the Calendar object.
+     * Returns true if the given Calendar date (eg. "15/01/1956 at 12:00:00.000 GMT")
+     * is in the past (ie. before this exact moment in time, with millisecond resolution).
      *
      * @param date the Calendar object to check
-     * @return whether the given Calendar's date is in the past (inclusive of today)
+     * @return whether the given Calendar is in the past.
      */
     public static boolean isDateInPast(Calendar date) {
-        Calendar start_of_tomorrow = Calendar.getInstance();
-        start_of_tomorrow.add(Calendar.DATE, 1);
-        start_of_tomorrow.set(Calendar.HOUR_OF_DAY, 0);
-        start_of_tomorrow.set(Calendar.MINUTE, 0);
-        start_of_tomorrow.set(Calendar.SECOND, 0);
-
-        return date.before(start_of_tomorrow);
+        Calendar now = Calendar.getInstance();
+        return date.before(now);
     }
 
 
@@ -120,7 +109,6 @@ public class CalendarUtil {
      */
     public static boolean areDatesEqual(Calendar first, Calendar second) {
         return getCalendarDateString(first).equals(getCalendarDateString(second));
-        //return Math.abs(first.getTimeInMillis() - second.getTimeInMillis()) < 3000;
     }
 
     /**

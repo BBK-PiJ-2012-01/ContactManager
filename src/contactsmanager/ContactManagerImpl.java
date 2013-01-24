@@ -180,7 +180,7 @@ public class ContactManagerImpl implements ContactManager {
 
         // Ensure date is in future (inclusive of today)
         if (!CalendarUtil.isDateInFuture(date))
-            throw new IllegalArgumentException("Date " + CalendarUtil.getCalendarDateString(date) + " is in the past");
+            throw new IllegalArgumentException("Date " + CalendarUtil.getCalendarString(date) + " is in the past");
 
         // Finally, add the meeting.
         int id = getNextMeetingId();
@@ -226,7 +226,7 @@ public class ContactManagerImpl implements ContactManager {
      *
      * @param meetings_list the list of meetings to sort chronologically.
      */
-    private void sortMeetingList(List<? extends Meeting> meetings_list) {
+    private void sortMeetingListChronologically(List<? extends Meeting> meetings_list) {
         Comparator<Meeting> meeting_date_comparator = new Comparator<Meeting>() {
             @Override
             public int compare(Meeting o1, Meeting o2) {
@@ -248,7 +248,7 @@ public class ContactManagerImpl implements ContactManager {
             }
         }
 
-        sortMeetingList(meetings_with_contact);
+        sortMeetingListChronologically(meetings_with_contact);
         return meetings_with_contact;
     }
 
@@ -262,7 +262,7 @@ public class ContactManagerImpl implements ContactManager {
         if (meetings_on_date == null) {
             meetings_on_date = new LinkedList<Meeting>();
         } else {
-            sortMeetingList(meetings_on_date);
+            sortMeetingListChronologically(meetings_on_date);
         }
 
         return meetings_on_date;
@@ -279,7 +279,7 @@ public class ContactManagerImpl implements ContactManager {
             }
         }
 
-        sortMeetingList(meetings_with_contact);
+        sortMeetingListChronologically(meetings_with_contact);
         return meetings_with_contact;
     }
 
@@ -293,7 +293,7 @@ public class ContactManagerImpl implements ContactManager {
 
         // Ensure date is in past (inclusive of today)
         if (!CalendarUtil.isDateInPast(date))
-            throw new IllegalArgumentException("Date " + CalendarUtil.getCalendarDateString(date) + " is in the future");
+            throw new IllegalArgumentException("Date " + CalendarUtil.getCalendarString(date) + " is in the future");
 
         // Finally, add the meeting.
         int id = getNextMeetingId();
@@ -311,7 +311,7 @@ public class ContactManagerImpl implements ContactManager {
     private void addExistingMeetingToPast(Meeting meeting, String text) {
         // Check meeting is in the past (inclusive of today)
         if (!CalendarUtil.isDateInPast(meeting.getDate()))
-            throw new IllegalStateException("Date " + CalendarUtil.getCalendarDateString(meeting.getDate()) + " is in the future");
+            throw new IllegalStateException("Date " + CalendarUtil.getCalendarString(meeting.getDate()) + " is in the future");
 
         // Recreate as past meeting
         PastMeeting new_meeting = DIFactory.getInstance().newPastMeeting(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);

@@ -17,14 +17,12 @@ import java.util.*;
  * Time: 19:09
  */
 public class CalendarUtilTest {
-    private Calendar past, present, future;
+    private Calendar past, future;
 
     @Before
     public void setUp() throws Exception {
         past = Calendar.getInstance();
         past.set(1956, Calendar.JANUARY, 13);
-
-        present = Calendar.getInstance();
 
         future = Calendar.getInstance();
         future.set(2083, Calendar.FEBRUARY, 6);
@@ -36,11 +34,6 @@ public class CalendarUtilTest {
     }
 
     @Test
-    public void testIsPresentInFuture() throws Exception {
-        assertTrue(isDateInFuture(present));
-    }
-
-    @Test
     public void testIsPastInFuture() throws Exception {
         assertFalse(isDateInFuture(past));
     }
@@ -48,11 +41,6 @@ public class CalendarUtilTest {
     @Test
     public void testIsFutureInPast() throws Exception {
         assertFalse(isDateInPast(future));
-    }
-
-    @Test
-    public void testIsPresentInPast() throws Exception {
-        assertTrue(isDateInPast(present));
     }
 
     @Test
