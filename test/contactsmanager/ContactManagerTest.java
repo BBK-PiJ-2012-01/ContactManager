@@ -23,7 +23,7 @@ import java.util.Set;
  * Date: 03/01/2013
  * Time: 19:12
  */
-public class ContactManagerImplTest {
+public class ContactManagerTest {
     private ContactManager manager;
     private Set<Contact> contacts;
     private Calendar date;
@@ -31,14 +31,14 @@ public class ContactManagerImplTest {
     private int meeting_id;
     private Contact alice, bob, charlie, dave;
     private final int ALICE_ID = 0, BOB_ID = 1, CHARLIE_ID = 2;
-    private final String filename = "ContactManagerImplTest_output.xml";
+    private final String filename = "ContactManagerTest_output.xml";
 
     @Before
     public void setUp() throws Exception {
         cleanUp();
         resetManager();
 
-        dave = new ContactImpl(4, "Dave");
+        dave = DIFactory.getInstance().newContact(4, "Dave");
 
         meeting_id = -1;
     }
@@ -47,7 +47,7 @@ public class ContactManagerImplTest {
      * Resets the manager to containing alice, bob and charlie, and no meetings.
      */
     private void resetManager() {
-        manager = new ContactManagerImpl(filename);
+        manager = DIFactory.getInstance().newContactManager(filename);
 
         // Add contacts: alice, bob, charlie, to manager
         alice = addThenReturnContact("Alice", "Note A");
@@ -171,7 +171,7 @@ public class ContactManagerImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testAddNewPastMeetingWithStranger() throws Exception {
         setDateInPast();
-        contacts.add(new ContactImpl(4, "Stranger"));
+        contacts.add(DIFactory.getInstance().newContact(4, "Stranger"));
         manager.addNewPastMeeting(contacts, date, note);
     }
 
@@ -208,7 +208,7 @@ public class ContactManagerImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testAddFutureMeetingWithStranger() throws Exception {
         setDateInFuture();
-        contacts.add(new ContactImpl(4, "Stranger"));
+        contacts.add(DIFactory.getInstance().newContact(4, "Stranger"));
         manager.addFutureMeeting(contacts, date);
     }
 
@@ -466,7 +466,7 @@ public class ContactManagerImplTest {
 
     @Test
     public void testAddNewContact() throws Exception {
-        manager = new ContactManagerImpl(filename);
+        manager = DIFactory.getInstance().newContactManager(filename);
         manager.addNewContact("Alice", note);
     }
 
@@ -544,7 +544,7 @@ public class ContactManagerImplTest {
         manager.flush();
 
         // Recreate manager (from file)
-        manager = new ContactManagerImpl(filename);
+        manager = DIFactory.getInstance().newContactManager(filename);
 
         // Get flushed meetings
         FutureMeeting future_meeting = manager.getFutureMeeting(future_meeting_id);
@@ -562,7 +562,7 @@ public class ContactManagerImplTest {
         manager.flush();
 
         // Recreate manager (from file)
-        manager = new ContactManagerImpl(filename);
+        manager = DIFactory.getInstance().newContactManager(filename);
 
         // Check loaded contacts have same information as previous contacts
         testGetContactsBySingleId();
@@ -619,7 +619,7 @@ public class ContactManagerImplTest {
         bad_store.writeToFilename(filename);
 
         // Load from file into new manager object
-        manager = new ContactManagerImpl(filename);
+        manager = DIFactory.getInstance().newContactManager(filename);
 
         System.out.println("expected:" + setOf(good_future_meeting));
         System.out.println("got:" + manager.getFutureMeetingList(alice));

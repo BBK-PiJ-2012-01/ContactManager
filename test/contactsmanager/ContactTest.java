@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
  * Date: 03/01/2013
  * Time: 16:47
  */
-public class ContactImplTest {
+public class ContactTest {
     private Contact c;
     private final int id = 4;
     private final String name = "Bob";
@@ -20,7 +20,7 @@ public class ContactImplTest {
 
     @Before
     public void setUp() throws Exception {
-        c = new ContactImpl(id, name);
+        c = DIFactory.getInstance().newContact(id, name);
     }
 
     @Test
@@ -70,14 +70,14 @@ public class ContactImplTest {
 
     @Test
     public void testEquals() throws Exception {
-        Contact c_copy = new ContactImpl(4, "Bob");
+        Contact c_copy = DIFactory.getInstance().newContact(4, "Bob");
 
         assertTrue(c.equals(c_copy));
     }
 
     @Test
     public void testHashCode() throws Exception {
-        Contact c_copy = new ContactImpl(id, name);
+        Contact c_copy = DIFactory.getInstance().newContact(id, name);
 
         assertEquals(c.hashCode(), c_copy.hashCode());
     }

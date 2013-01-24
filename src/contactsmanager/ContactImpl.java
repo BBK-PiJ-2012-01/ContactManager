@@ -10,7 +10,7 @@ public class ContactImpl implements Contact {
     private final String name;
     private String notes = "";
 
-    public ContactImpl(int id, String name) {
+    public ContactImpl(Integer id, String name) {
         this.id = id;
         this.name = name;
     }

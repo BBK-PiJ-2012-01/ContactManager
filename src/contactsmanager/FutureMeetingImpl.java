@@ -9,7 +9,7 @@ import java.util.Set;
  */
 public class FutureMeetingImpl extends AbstractMeeting implements FutureMeeting {
 
-    public FutureMeetingImpl(int id, Calendar date, Set<Contact> contacts) {
+    public FutureMeetingImpl(Integer id, Calendar date, Set<Contact> contacts) {
         super(id, date, contacts);
     }
 

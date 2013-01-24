@@ -1,6 +1,8 @@
 package contactsmanager;
 
 import static contactsmanager.util.CalendarUtil.getCalendarString;
+import static contactsmanager.util.CalendarUtil.getCalendarDateString;
+import static contactsmanager.util.CalendarUtil.areDatesEqual;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -15,7 +17,7 @@ abstract public class AbstractMeeting implements Meeting {
     private final Calendar date;
     private final Set<Contact> contacts;
 
-    public AbstractMeeting(int id, Calendar date, Set<Contact> contacts) {
+    public AbstractMeeting(Integer id, Calendar date, Set<Contact> contacts) {
         this.id = id;
         this.date = (Calendar) date.clone();
         this.contacts = new HashSet<Contact>(contacts);
@@ -47,19 +49,20 @@ abstract public class AbstractMeeting implements Meeting {
         if (this.getId() != that.getId()) return false;
         if (!this.getContacts().equals(that.getContacts())) return false;
 
+        //TODO: Sort this out when Sergio replies
         //String this_date_string = getCalendarString(this.getDate());
         //String that_date_string = getCalendarString(that.getDate());
         //if (!this_date_string.equals(that_date_string)) return false;
-        if (Math.abs(this.getDate().compareTo(that.getDate())) > 1000) return false;
+        //if (Math.abs(this.getDate().getTimeInMillis() - (that.getDate().getTimeInMillis())) > 1000) return false;
 
-        return true;
+        return areDatesEqual(this.getDate(), that.getDate());
     }
 
     @Override
     public int hashCode() {
         // Adapted from code generated automatically by IntelliJ
         int result = id;
-        result = 31 * result + getCalendarString(date).hashCode();
+        result = 31 * result + getCalendarDateString(date).hashCode();
         result = 31 * result + contacts.hashCode();
         return result;
     }

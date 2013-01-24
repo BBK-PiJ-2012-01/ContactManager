@@ -48,7 +48,8 @@ public class ContactManagerImpl implements ContactManager {
      * prevent loading the rest of the meetings.
      */
     private void loadFromFile() {
-        DataStore data = new XmlDataStore();
+        DataStore data = DIFactory.getInstance().newDataStore();
+
         try {
             data.loadFromFilename(filename);
         } catch (IOException e) {
@@ -183,7 +184,7 @@ public class ContactManagerImpl implements ContactManager {
 
         // Finally, add the meeting.
         int id = getNextMeetingId();
-        addMeeting(new FutureMeetingImpl(id, date, new HashSet<Contact>(contacts)));
+        addMeeting(DIFactory.getInstance().newFutureMeeting(id, date, new HashSet<Contact>(contacts)));
         return id;
     }
 
@@ -257,14 +258,6 @@ public class ContactManagerImpl implements ContactManager {
         if (date == null)
             throw new NullPointerException("date is null");
 
-//        List<Meeting> meetings_on_date = new LinkedList<Meeting>();
-//        for (Meeting meeting : future_meetings_by_id.values()) {
-//            if (meeting.getDate().equals(date)) {
-//                meetings_on_date.add(meeting);
-//            }
-//        }
-//        return getSortedMeetingList(meetings_on_date);
-
         List<Meeting> meetings_on_date = meetings_by_date.get(date);
         if (meetings_on_date == null) {
             meetings_on_date = new LinkedList<Meeting>();
@@ -304,7 +297,7 @@ public class ContactManagerImpl implements ContactManager {
 
         // Finally, add the meeting.
         int id = getNextMeetingId();
-        addMeeting(new PastMeetingImpl(id, date, new HashSet<Contact>(contacts), text));
+        addMeeting(DIFactory.getInstance().newPastMeeting(id, date, new HashSet<Contact>(contacts), text));
     }
 
     /**
@@ -321,7 +314,7 @@ public class ContactManagerImpl implements ContactManager {
             throw new IllegalStateException("Date " + CalendarUtil.getCalendarDateString(meeting.getDate()) + " is in the future");
 
         // Recreate as past meeting
-        PastMeeting new_meeting = new PastMeetingImpl(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);
+        PastMeeting new_meeting = DIFactory.getInstance().newPastMeeting(meeting.getId(), meeting.getDate(), meeting.getContacts(), text);
 
         // Put in past_meetings_by_id (if meeting is already in past_meetings_by_id, this overwrites it).
         past_meetings_by_id.put(meeting.getId(), new_meeting);
@@ -366,7 +359,7 @@ public class ContactManagerImpl implements ContactManager {
             throw new NullPointerException("notes is null");
 
         int id = ++last_contact_id;
-        Contact contact = new ContactImpl(id, name);
+        Contact contact = DIFactory.getInstance().newContact(id, name);
 
         // Add notes to contact.  It will automatically remove whitespace.
         contact.addNotes(notes);
@@ -406,7 +399,7 @@ public class ContactManagerImpl implements ContactManager {
 
     @Override
     public void flush() {
-        DataStore data = new XmlDataStore();
+        DataStore data = DIFactory.getInstance().newDataStore();
 
         // Put data in data store
         data.setContacts(known_contacts.values());

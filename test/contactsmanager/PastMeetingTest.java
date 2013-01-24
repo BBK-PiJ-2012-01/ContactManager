@@ -15,13 +15,14 @@ import static org.junit.Assert.assertTrue;
  * Date: 03/01/2013
  * Time: 18:44
  */
-public class PastMeetingImplTest {
+public class PastMeetingTest extends AbstractMeetingTest {
     private PastMeeting m;
     private final String notes = "Initial Note ";
 
     @Before
     public void setUp() throws Exception {
-        m = new PastMeetingImpl(1, Calendar.getInstance(), new HashSet<Contact>(), notes);
+        super.setUp();
+        m = DIFactory.getInstance().newPastMeeting(1, Calendar.getInstance(), new HashSet<Contact>(), notes);
     }
 
     @Test
@@ -31,28 +32,28 @@ public class PastMeetingImplTest {
 
     @Test
     public void testEquals() throws Exception {
-        PastMeeting m_copy = new PastMeetingImpl(1, Calendar.getInstance(), new HashSet<Contact>(), notes);
+        PastMeeting m_copy = DIFactory.getInstance().newPastMeeting(1, Calendar.getInstance(), new HashSet<Contact>(), notes);
 
         assertEquals(m, m_copy);
     }
 
     @Test
     public void testEqualsWithWrongNotes() throws Exception {
-        PastMeeting m_copy = new PastMeetingImpl(1, Calendar.getInstance(), new HashSet<Contact>(), "other notes");
+        PastMeeting m_copy = DIFactory.getInstance().newPastMeeting(1, Calendar.getInstance(), new HashSet<Contact>(), "other notes");
 
         assertFalse(m.equals(m_copy));
     }
 
     @Test
     public void testHash() throws Exception {
-        PastMeeting m_copy = new PastMeetingImpl(1, Calendar.getInstance(), new HashSet<Contact>(), notes);
+        PastMeeting m_copy = DIFactory.getInstance().newPastMeeting(1, Calendar.getInstance(), new HashSet<Contact>(), notes);
 
         assertEquals(m.hashCode(), m_copy.hashCode());
     }
 
     @Test
     public void testHashWithWrongNotes() throws Exception {
-        PastMeeting m_copy = new PastMeetingImpl(1, Calendar.getInstance(), new HashSet<Contact>(), "other notes");
+        PastMeeting m_copy = DIFactory.getInstance().newPastMeeting(1, Calendar.getInstance(), new HashSet<Contact>(), "other notes");
 
         assertTrue(m.hashCode() != m_copy.hashCode());
     }

@@ -19,7 +19,7 @@ import java.util.Calendar;
  * Date: 05/01/2013
  * Time: 20:04
  */
-public class XmlDataStoreTest {
+public class DataStoreTest {
     private DataStore doc;
     private Contact alice, bob, charlie;
     private FutureMeeting fm1, fm2, fm3;
@@ -44,13 +44,13 @@ public class XmlDataStoreTest {
         bob.addNotes(notes2);
         charlie.addNotes(notes3);
 
-        fm1 = new FutureMeetingImpl(1, getFutureDate(1), setOf(alice, bob, charlie));
-        fm2 = new FutureMeetingImpl(2, getFutureDate(2), setOf(alice, bob));
-        fm3 = new FutureMeetingImpl(3, getFutureDate(3), setOf(alice));
+        fm1 = DIFactory.getInstance().newFutureMeeting(1, getFutureDate(1), setOf(alice, bob, charlie));
+        fm2 = DIFactory.getInstance().newFutureMeeting(2, getFutureDate(2), setOf(alice, bob));
+        fm3 = DIFactory.getInstance().newFutureMeeting(3, getFutureDate(3), setOf(alice));
 
-        pm1 = new PastMeetingImpl(4, getPastDate(1), setOf(alice, bob, charlie), notes1);
-        pm2 = new PastMeetingImpl(5, getPastDate(2), setOf(alice, bob), notes2);
-        pm3 = new PastMeetingImpl(6, getPastDate(3), setOf(alice), notes3);
+        pm1 = DIFactory.getInstance().newPastMeeting(4, getPastDate(1), setOf(alice, bob, charlie), notes1);
+        pm2 = DIFactory.getInstance().newPastMeeting(5, getPastDate(2), setOf(alice, bob), notes2);
+        pm3 = DIFactory.getInstance().newPastMeeting(6, getPastDate(3), setOf(alice), notes3);
     }
 
     /**

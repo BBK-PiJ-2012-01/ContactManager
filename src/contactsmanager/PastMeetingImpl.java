@@ -9,7 +9,7 @@ import java.util.Set;
 public class PastMeetingImpl extends AbstractMeeting implements PastMeeting {
     private final String notes;
 
-    public PastMeetingImpl(int id, Calendar date, Set<Contact> contacts, String notes) {
+    public PastMeetingImpl(Integer id, Calendar date, Set<Contact> contacts, String notes) {
         super(id, date, contacts);
         this.notes = notes;
     }

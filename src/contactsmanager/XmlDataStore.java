@@ -421,7 +421,7 @@ public class XmlDataStore implements DataStore {
                 Set<Contact> meeting_contacts = getContactsFromMeetingNode(meeting_node);
 
                 // Create meeting object
-                future_meetings.add(new FutureMeetingImpl(id, date, meeting_contacts));
+                future_meetings.add(DIFactory.getInstance().newFutureMeeting(id, date, meeting_contacts));
             }
         }
     }
@@ -450,7 +450,7 @@ public class XmlDataStore implements DataStore {
                 Set<Contact> meeting_contacts = getContactsFromMeetingNode(meeting_node);
 
                 // Create meeting object
-                past_meetings.add(new PastMeetingImpl(id, date, meeting_contacts, notes));
+                past_meetings.add(DIFactory.getInstance().newPastMeeting(id, date, meeting_contacts, notes));
             }
         }
     }
@@ -477,7 +477,7 @@ public class XmlDataStore implements DataStore {
                 String notes = getDataUnderNode("notes", contact_node);
 
                 // Create contact object
-                Contact contact = new ContactImpl(id, name);
+                Contact contact = DIFactory.getInstance().newContact(id, name);
                 contact.addNotes(notes);
                 contacts.add(contact);
             }

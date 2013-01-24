@@ -2,6 +2,7 @@ package contactsmanager;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -16,6 +17,7 @@ import java.util.Set;
  * Date: 03/01/2013
  * Time: 16:59
  */
+@Ignore
 public class AbstractMeetingTest {
     private Meeting m;
     private int id = 3;
@@ -28,9 +30,9 @@ public class AbstractMeetingTest {
         date.set(1956, Calendar.DECEMBER, 23);
 
         contacts = new HashSet<Contact>();
-        contacts.add(new ContactImpl(1, "Alice"));
-        contacts.add(new ContactImpl(2, "Bob"));
-        contacts.add(new ContactImpl(3, "Charlie"));
+        contacts.add(DIFactory.getInstance().newContact(1, "Alice"));
+        contacts.add(DIFactory.getInstance().newContact(2, "Bob"));
+        contacts.add(DIFactory.getInstance().newContact(3, "Charlie"));
 
         m = new AbstractMeeting(id, date, contacts) {};
     }
@@ -69,7 +71,7 @@ public class AbstractMeetingTest {
 
     @Test
     public void testGetContactImmutability() throws Exception {
-        m.getContacts().add(new ContactImpl(4, "Dave"));
+        m.getContacts().add(DIFactory.getInstance().newContact(4, "Dave"));
         assertEquals(contacts, m.getContacts());
     }
 
@@ -77,7 +79,7 @@ public class AbstractMeetingTest {
     public void testContactsImmutability() throws Exception {
         Set<Contact> original_contacts = new HashSet<Contact>(contacts);
 
-        contacts.add(new ContactImpl(4, "Dave"));
+        contacts.add(DIFactory.getInstance().newContact(4, "Dave"));
         assertFalse(original_contacts.equals(contacts));
 
         assertEquals(original_contacts, m.getContacts());
@@ -164,8 +166,8 @@ public class AbstractMeetingTest {
 
     @Test
     public void testPastAndFutureMeetingsNotEqual() throws Exception {
-        Meeting pm = new PastMeetingImpl(1, date, contacts, "notes");
-        Meeting fm = new FutureMeetingImpl(1, date, contacts);
+        Meeting pm = DIFactory.getInstance().newPastMeeting(1, date, contacts, "notes");
+        Meeting fm = DIFactory.getInstance().newFutureMeeting(1, date, contacts);
 
         assertTrue(fm.hashCode() != pm.hashCode());
         assertFalse(pm.equals(fm));
