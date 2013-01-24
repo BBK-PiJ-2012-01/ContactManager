@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ContactManagerData>
+  <Contacts>
+    <contact id="5">
+      <name>Jane/&gt;&amp;"\"</name>
+      <notes>notes</notes>
+    </contact>
+  </Contacts>
+  <FutureMeetings>
+    <meeting id="1">
+      <date>AAAgh!01/01/2053</date>
+      <contacts>
+        <contact id="2"/>
+        <contact id="3"/>
+        <contact id="1"/>
+      </contacts>
+    </meeting>
+  </FutureMeetings>
+  <PastMeetings/>
+</ContactManagerData>
