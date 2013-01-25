@@ -2,8 +2,8 @@
 <ContactManagerData>
   <Contacts>
     <contact id="5">
-      <name>Jane/&gt;&amp;"\"</name>
-      <name>Jane"</name>
+      <name>Jane1</name>
+      <name>Jane2</name>
       <notes>notes</notes>
     </contact>
   </Contacts>
